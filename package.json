@@ -1,0 +1,16 @@
+{
+  "name": "color-poet",
+  "private": true,
+  "version": "0.1.0",
+  "description": "色彩诗卡 ColorPoet —— 上传照片，AI 提取主色调，生成抽象色彩画、可爱动漫动物与经典名句",
+  "license": "MIT",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @color-poet/api --filter @color-poet/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
