@@ -12,14 +12,12 @@ const DEFAULT_META: Meta = {
     cool: ["雪狐", "企鹅", "鲸鱼", "猫头鹰", "海豹", "白兔"],
     neutral: ["仓鼠", "水獭", "海豹", "熊猫", "刺猬", "树懒"],
   },
-  styles: ["aurora", "mondrian", "gradients", "flow", "oil", "vivid"],
+  styles: ["aurora", "mondrian", "gradients", "oil"],
   styleLabels: {
-    aurora: "极光幻梦",
+    aurora: "极光",
     mondrian: "蒙德里安",
-    gradients: "柔光渐变",
-    flow: "流体涟漪",
-    oil: "油画质感",
-    vivid: "绚烂霓虹",
+    gradients: "柔光",
+    oil: "油画",
   },
 };
 

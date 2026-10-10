@@ -73,48 +73,61 @@ export async function composePoster(input: PosterInput): Promise<Blob> {
   ctx.fillStyle = "rgba(255,252,245,0.7)";
   ctx.fillText("FLOW OF LIFE", 70, 124);
 
-  // 4. 动物（右下角圆形）
-  const ring = 300;
-  const cx = W - 210;
-  const cy = H - 360;
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, ring / 2, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
-  if (input.animal.imageDataUri) {
-    const img = await loadImage(input.animal.imageDataUri);
-    const s = Math.max(ring / img.width, ring / img.height);
-    const iw = img.width * s;
-    const ih = img.height * s;
-    ctx.drawImage(img, cx - iw / 2, cy - ih / 2, iw, ih);
-  } else {
-    ctx.fillStyle = input.palette.colors[0]?.hex ?? "#e8a05a";
-    ctx.fillRect(cx - ring / 2, cy - ring / 2, ring, ring);
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.font = "bold 90px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(input.animal.name, cx, cy);
+  // 4. 动物（左下角羽化点缀，无边框）
+  const ring = 280;
+  const cx = 60 + ring / 2;
+  const cy = H - 220;
+  const off = document.createElement("canvas");
+  off.width = ring;
+  off.height = ring;
+  const octx = off.getContext("2d");
+  if (octx) {
+    octx.save();
+    octx.beginPath();
+    octx.arc(ring / 2, ring / 2, ring / 2, 0, Math.PI * 2);
+    octx.closePath();
+    octx.clip();
+    if (input.animal.imageDataUri) {
+      const img = await loadImage(input.animal.imageDataUri);
+      const s = Math.max(ring / img.width, ring / img.height);
+      const iw = img.width * s;
+      const ih = img.height * s;
+      octx.drawImage(img, ring / 2 - iw / 2, ring / 2 - ih / 2, iw, ih);
+    } else {
+      octx.fillStyle = input.palette.colors[0]?.hex ?? "#e8a05a";
+      octx.fillRect(0, 0, ring, ring);
+      octx.fillStyle = "rgba(255,255,255,0.9)";
+      octx.font = "bold 80px sans-serif";
+      octx.textAlign = "center";
+      octx.textBaseline = "middle";
+      octx.fillText(input.animal.name, ring / 2, ring / 2);
+    }
+    octx.restore();
+    // 羽化边缘
+    octx.save();
+    const mask = octx.createRadialGradient(ring / 2, ring / 2, ring * 0.2, ring / 2, ring / 2, ring / 2);
+    mask.addColorStop(0, "rgba(0,0,0,1)");
+    mask.addColorStop(0.7, "rgba(0,0,0,1)");
+    mask.addColorStop(1, "rgba(0,0,0,0)");
+    octx.globalCompositeOperation = "destination-in";
+    octx.fillStyle = mask;
+    octx.fillRect(0, 0, ring, ring);
+    octx.restore();
+    ctx.drawImage(off, cx - ring / 2, cy - ring / 2);
   }
-  ctx.restore();
-  ctx.beginPath();
-  ctx.arc(cx, cy, ring / 2, 0, Math.PI * 2);
-  ctx.lineWidth = 10;
-  ctx.strokeStyle = "rgba(255,255,255,0.85)";
-  ctx.stroke();
 
-  // 5. 诗句（中下部）
+  // 5. 诗句（中间居中）
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#fdfaf4";
-  const fontSize = input.quote.text.length > 22 ? 44 : 56;
+  const fontSize = input.quote.text.length > 26 ? 42 : input.quote.text.length > 16 ? 50 : 58;
   ctx.font = "600 " + fontSize + "px Songti SC, STSong, Noto Serif CJK SC, Georgia, serif";
   const lines = wrapText(ctx, "「" + input.quote.text + "」", W - 220);
-  let textY = H * 0.62;
+  const lineH = fontSize * 1.42;
+  let textY = H * 0.5 - ((lines.length - 1) * lineH) / 2;
   lines.forEach((line) => {
     ctx.fillText(line, W / 2, textY);
-    textY += fontSize * 1.42;
+    textY += lineH;
   });
 
   // 6. 作者 / 出处

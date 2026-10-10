@@ -11,7 +11,6 @@ export interface Quote {
   id: number;
   text: string;
   author: string;
-  /** 出处（书名/篇名），无法确证时省略 */
   source?: string;
   lang: Lang;
   themes: Theme[];
@@ -20,12 +19,11 @@ export interface Quote {
 }
 
 /**
- * 精选名句库：杨定一、克里希那穆提、一行禅师、拜伦·凯蒂、拉玛那·马哈希、埃克哈特·托利。
- * 全部为真实可查证的句子，标注作者与出处。
+ * 精选名句库：灵性导师 + 哲学家，全部为真实可查证的完整句子。
  */
 export const QUOTES: Quote[] = [
   // ---------- 杨定一博士 ----------
-  { id: 1, text: "宇宙不可能犯错。", author: "杨定一", source: "神圣的你", lang: "zh", themes: ["acceptance", "philosophy", "serenity"], moods: ["neutral", "warm"], brightness: ["balanced"] },
+  { id: 1, text: "宇宙不可能犯错。", author: "杨定一", source: "神圣的你", lang: "zh", themes: ["acceptance", "philosophy"], moods: ["neutral", "warm"], brightness: ["balanced"] },
   { id: 2, text: "一切，都刚刚好。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["acceptance", "serenity"], moods: ["warm", "neutral"], brightness: ["light", "balanced"] },
   { id: 3, text: "回到当下，一切自然都好。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["presence", "serenity"], moods: ["neutral", "warm"], brightness: ["balanced"] },
   { id: 4, text: "你，就是宇宙。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["philosophy", "presence"], moods: ["neutral"], brightness: ["balanced"] },
@@ -54,17 +52,34 @@ export const QUOTES: Quote[] = [
 
   // ---------- 拉玛那·马哈希 ----------
   { id: 21, text: "静默，是永不间断的布道。", author: "拉玛那·马哈希", source: "走向静默，如你本来", lang: "translated", themes: ["serenity", "philosophy"], moods: ["neutral", "cool"], brightness: ["dark", "balanced"] },
-  { id: 22, text: "如你本来。", author: "拉玛那·马哈希", source: "走向静默，如你本来", lang: "translated", themes: ["acceptance", "serenity"], moods: ["neutral"], brightness: ["balanced"] },
-  { id: 23, text: "我是谁？", author: "拉玛那·马哈希", source: "谁在我是？", lang: "translated", themes: ["philosophy", "presence"], moods: ["cool", "neutral"], brightness: ["balanced"] },
-  { id: 24, text: "你的本性，就是平静。", author: "拉玛那·马哈希", lang: "translated", themes: ["serenity", "presence"], moods: ["neutral"], brightness: ["balanced"] },
-  { id: 25, text: "一切都将过去，唯有真我常存。", author: "拉玛那·马哈希", lang: "translated", themes: ["philosophy", "time"], moods: ["neutral", "cool"], brightness: ["balanced", "dark"] },
+  { id: 22, text: "凡是生起的，都会消逝；唯有真我，恒常不变。", author: "拉玛那·马哈希", source: "走向静默，如你本来", lang: "translated", themes: ["philosophy", "time"], moods: ["neutral", "cool"], brightness: ["balanced", "dark"] },
+  { id: 23, text: "探究「我是谁」，其余一切都会自然归位。", author: "拉玛那·马哈希", source: "谁在我是？", lang: "translated", themes: ["philosophy", "presence"], moods: ["neutral"], brightness: ["balanced"] },
 
   // ---------- 埃克哈特·托利 ----------
-  { id: 26, text: "当下时刻，是你唯一拥有的时间。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["presence", "philosophy"], moods: ["neutral", "warm"], brightness: ["light", "balanced"] },
-  { id: 27, text: "臣服于当下，就是臣服于生命。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["acceptance", "presence"], moods: ["neutral", "warm"], brightness: ["balanced"] },
-  { id: 28, text: "你无法在当下之外找到自己。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["presence", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
-  { id: 29, text: "临在，是觉醒的开始。", author: "埃克哈特·托利", lang: "translated", themes: ["presence", "philosophy"], moods: ["neutral", "warm"], brightness: ["light"] },
-  { id: 30, text: "内在的平静，不需要任何条件。", author: "埃克哈特·托利", source: "新世界", lang: "translated", themes: ["serenity", "acceptance"], moods: ["neutral", "cool"], brightness: ["balanced"] },
+  { id: 24, text: "当下时刻，是你唯一拥有的时间。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["presence", "philosophy"], moods: ["neutral", "warm"], brightness: ["light", "balanced"] },
+  { id: 25, text: "臣服于当下，就是臣服于生命。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["acceptance", "presence"], moods: ["neutral", "warm"], brightness: ["balanced"] },
+  { id: 26, text: "你无法在当下之外找到自己。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["presence", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 27, text: "临在，是觉醒的开始。", author: "埃克哈特·托利", lang: "translated", themes: ["presence", "philosophy"], moods: ["neutral", "warm"], brightness: ["light"] },
+  { id: 28, text: "内在的平静，不需要任何条件。", author: "埃克哈特·托利", source: "新世界", lang: "translated", themes: ["serenity", "acceptance"], moods: ["neutral", "cool"], brightness: ["balanced"] },
+
+  // ---------- 哲学家 ----------
+  { id: 29, text: "上善若水。水善利万物而不争，处众人之所恶，故几于道。", author: "老子", source: "道德经", lang: "zh", themes: ["nature", "philosophy", "serenity"], moods: ["neutral", "cool"], brightness: ["balanced"] },
+  { id: 30, text: "知人者智，自知者明。胜人者有力，自胜者强。", author: "老子", source: "道德经", lang: "zh", themes: ["philosophy", "serenity"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 31, text: "天地有大美而不言。", author: "庄子", source: "庄子·知北游", lang: "zh", themes: ["nature", "serenity", "philosophy"], moods: ["neutral"], brightness: ["light"] },
+  { id: 32, text: "未经省察的人生不值得过。", author: "苏格拉底", source: "申辩篇", lang: "translated", themes: ["philosophy"], moods: ["cool", "neutral"], brightness: ["dark"] },
+  { id: 33, text: "我唯一知道的，就是我一无所知。", author: "苏格拉底", source: "申辩篇", lang: "translated", themes: ["philosophy", "serenity"], moods: ["cool", "neutral"], brightness: ["balanced"] },
+  { id: 34, text: "吾爱吾师，吾更爱真理。", author: "亚里士多德", lang: "translated", themes: ["philosophy", "freedom"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 35, text: "对爱情的渴望，对知识的追求，对人类苦难不可遏制的同情，这三种激情支配了我的一生。", author: "罗素", source: "我为什么而活着", lang: "translated", themes: ["love", "philosophy", "hope"], moods: ["warm"], brightness: ["light"] },
+  { id: 36, text: "幸福的秘诀在于：让你的兴趣尽量广泛，对你关心的人与事尽量友善。", author: "罗素", source: "幸福之路", lang: "translated", themes: ["love", "hope"], moods: ["warm"], brightness: ["light"] },
+  { id: 37, text: "凡是能够说的，都能够说清楚；凡是不能说的，就必须保持沉默。", author: "维特根斯坦", source: "逻辑哲学论", lang: "translated", themes: ["philosophy", "serenity"], moods: ["cool", "neutral"], brightness: ["balanced"] },
+  { id: 38, text: "语言的界限，就是世界的界限。", author: "维特根斯坦", source: "逻辑哲学论", lang: "translated", themes: ["philosophy"], moods: ["cool", "neutral"], brightness: ["balanced"] },
+  { id: 39, text: "每一个不曾起舞的日子，都是对生命的辜负。", author: "尼采", source: "查拉图斯特拉如是说", lang: "translated", themes: ["vitality", "hope"], moods: ["warm"], brightness: ["light"] },
+  { id: 40, text: "在隆冬，我终于知道，我身上有一个不可战胜的夏天。", author: "加缪", source: "重返蒂巴萨", lang: "translated", themes: ["resilience", "hope"], moods: ["warm", "cool"], brightness: ["dark"] },
+  { id: 41, text: "人是一根会思想的芦苇。", author: "帕斯卡", source: "思想录", lang: "translated", themes: ["philosophy"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 42, text: "我们都生活在阴沟里，但仍有人仰望星空。", author: "王尔德", source: "温德米尔夫人的扇子", lang: "translated", themes: ["hope", "philosophy"], moods: ["warm", "cool"], brightness: ["dark"] },
+  { id: 43, text: "有两样东西，愈是经常和持久地思考它们，愈是使心灵充满敬畏：头上的星空和心中的道德律。", author: "康德", source: "实践理性批判", lang: "translated", themes: ["philosophy", "serenity"], moods: ["cool", "neutral"], brightness: ["dark"] },
+  { id: 44, text: "人不能两次踏进同一条河流。", author: "赫拉克利特", lang: "translated", themes: ["time", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 45, text: "你拥有力量掌控你的内心，而非外部事物。", author: "马可·奥勒留", source: "沉思录", lang: "translated", themes: ["acceptance", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
 ];
 
 function mulberry32(seed: number): () => number {
@@ -82,7 +97,6 @@ export interface QuoteContext {
   brightness: Brightness;
 }
 
-/** 根据画面情绪检索最匹配的名句；seed 用于在同分候选中随机切换 */
 export function pickQuote(
   ctx: QuoteContext,
   excludeIds: ReadonlySet<number> = new Set(),
