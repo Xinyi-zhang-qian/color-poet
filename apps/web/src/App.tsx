@@ -155,32 +155,29 @@ export default function App() {
         </header>
 
         {phase === "idle" && (
-          <section className="grid md:grid-cols-3 gap-5 fade-up">
-            <button className="glow-box p-7 flex flex-col items-center gap-3 cursor-pointer" onClick={onRandom}>
-              <span className="text-4xl">🎲</span>
+          <section className="max-w-md mx-auto flex flex-col gap-4 fade-up">
+            <button className="glow-box p-6 text-center cursor-pointer" onClick={onRandom}>
               <span className="text-white text-lg font-medium">直接抽卡</span>
-              <span className="text-white/40 text-xs">随机配色，抽取此刻的卡片</span>
+              <span className="text-white/45 text-sm block mt-1.5">随机配色，抽取此刻的卡片</span>
             </button>
 
-            <div className="glow-box p-7 flex flex-col items-center gap-3">
-              <span className="text-4xl">💬</span>
+            <div className="glow-box p-6 text-center">
               <span className="text-white text-lg font-medium">一句话抽卡</span>
               <input
-                className="input-line text-center"
+                className="input-line text-center mt-4"
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") onText(); }}
                 placeholder="说一句话，如：黄昏的海边"
               />
-              <button className="btn btn-primary w-full" onClick={onText} disabled={!textInput.trim()}>
+              <button className="btn btn-primary w-full mt-4" onClick={onText} disabled={!textInput.trim()}>
                 抽卡
               </button>
             </div>
 
-            <div className="glow-box p-7 flex flex-col items-center gap-3 cursor-pointer" onClick={() => fileRef.current?.click()}>
-              <span className="text-4xl">🖼️</span>
+            <div className="glow-box p-6 text-center cursor-pointer" onClick={() => fileRef.current?.click()}>
               <span className="text-white text-lg font-medium">上传照片</span>
-              <span className="text-white/40 text-xs">点击上传，从照片取色</span>
+              <span className="text-white/45 text-sm block mt-1.5">点击上传，从照片取色</span>
               <input
                 ref={fileRef}
                 type="file"
