@@ -1,5 +1,5 @@
 import { extractPalette } from "../lib/palette.js";
-import type { Palette, Mood, Brightness } from "../lib/palette.js";
+import type { Palette, Mood, Brightness, PaletteColor } from "../lib/palette.js";
 import { generateAbstractSvg } from "../lib/abstract.js";
 import type { AbstractStyle } from "../lib/abstract.js";
 import { pickQuote } from "../data/quotes.js";
@@ -147,26 +147,172 @@ async function generateAnimalImage(
   }
 }
 
+/* ---------- 色板工具（随机 / 文字抽卡） ---------- */
+
+function hslToHexLocal(h: number, s: number, l: number): string {
+  h = ((h % 360) + 360) % 360;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; }
+  else if (h < 120) { r = x; g = c; }
+  else if (h < 180) { g = c; b = x; }
+  else if (h < 240) { g = x; b = c; }
+  else if (h < 300) { r = x; b = c; }
+  else { r = c; b = x; }
+  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+  return "#" + toHex(r) + toHex(g) + toHex(b);
+}
+
+function hexToRgbLocal(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
+function hashText(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+
+/** 随机生成一组和谐的色板 */
+export function randomPalette(seed: number): Palette {
+  const rand = mulberry32(seed >>> 0);
+  const baseHue = rand() * 360;
+  const mode = rand() < 0.5 ? "analogous" : "triad";
+  const n = 6;
+  const colors: PaletteColor[] = [];
+  let sumL = 0;
+  for (let i = 0; i < n; i++) {
+    let h: number, s: number, l: number;
+    if (mode === "analogous") {
+      h = (baseHue + (i - 2.5) * 16 + rand() * 12 + 360) % 360;
+      s = 0.45 + rand() * 0.35;
+      l = 0.32 + rand() * 0.38;
+    } else {
+      h = (baseHue + i * 60 + rand() * 24 + 360) % 360;
+      s = 0.55 + rand() * 0.3;
+      l = 0.38 + rand() * 0.3;
+    }
+    const hex = hslToHexLocal(h, s, l);
+    const rgb = hexToRgbLocal(hex);
+    sumL += l;
+    colors.push({ hex, rgb, ratio: 1 / n, textColor: l > 0.55 ? "#0f0f0f" : "#fafafa" });
+  }
+  const mood: Mood = baseHue < 70 || baseHue >= 320 ? "warm" : baseHue >= 100 && baseHue < 280 ? "cool" : "neutral";
+  const avgL = sumL / n;
+  const brightness: Brightness = avgL < 0.4 ? "dark" : avgL > 0.62 ? "light" : "balanced";
+  return { colors, mood, brightness, average: { l: avgL * 100, a: 0, b: 0 } };
+}
+
+function makePaletteFromHex(hexes: string[], mood: Mood, brightness: Brightness): Palette {
+  const colors: PaletteColor[] = hexes.map((hex) => {
+    const [r, g, b] = hexToRgbLocal(hex);
+    const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+    return { hex, rgb: [r, g, b], ratio: 1 / hexes.length, textColor: lum > 0.6 ? "#0f0f0f" : "#fafafa" };
+  });
+  return { colors, mood, brightness, average: { l: 50, a: 0, b: 0 } };
+}
+
+interface TextAnalysis {
+  palette: Palette;
+  description: string;
+  animal?: string;
+}
+
+/** 用通义千问分析一句话的意境，得到色板与描述；失败返回 null */
+async function analyzeText(text: string): Promise<TextAnalysis | null> {
+  if (!hasDashscopeKey()) return null;
+  const pool = ANIMALS.warm.concat(ANIMALS.cool, ANIMALS.neutral).join("、");
+  const sys = "你是一位灵性艺术策展人。感受用户这句话的意境，输出与之契合的和谐配色、情绪与一只可爱动物。只输出 JSON。";
+  const user = `句子：${text}；动物候选池：${pool}。请输出 JSON：{"mood":"warm/cool/neutral 之一","brightness":"light/dark/balanced 之一","description":"不超过20字的中文意境描述","animal":"从候选池选一只","colors":["#RRGGBB", 共6个和谐配色]}`;
+  try {
+    const res = await fetch(`${config.dashscopeBase}/compatible-mode/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.dashscopeApiKey}`,
+      },
+      body: JSON.stringify({
+        model: config.qwenModel,
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: user },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.9,
+      }),
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    const content = json.choices?.[0]?.message?.content;
+    if (!content) return null;
+    const parsed = JSON.parse(content) as { mood?: string; brightness?: string; description?: string; animal?: string; colors?: string[] };
+    const colors = Array.isArray(parsed.colors)
+      ? parsed.colors.filter((c) => /^#[0-9a-f]{6}$/i.test(String(c))).slice(0, 6)
+      : [];
+    if (colors.length < 3) return null;
+    const mood: Mood = (["warm", "cool", "neutral"] as const).includes(parsed.mood as Mood) ? (parsed.mood as Mood) : "neutral";
+    const brightness: Brightness = (["light", "dark", "balanced"] as const).includes(parsed.brightness as Brightness) ? (parsed.brightness as Brightness) : "balanced";
+    return {
+      palette: makePaletteFromHex(colors, mood, brightness),
+      description: String(parsed.description ?? "").slice(0, 40),
+      animal: typeof parsed.animal === "string" ? parsed.animal.trim() : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /* ---------- 主编排 ---------- */
 
-export async function generateColorCard(imageBuffer: Buffer, req: GenerateRequest = {}): Promise<GenerateResult> {
+/** 从色板生成完整诗卡（图片 / 文字 / 随机三种模式共用） */
+async function generateCardFromPalette(
+  palette: Palette,
+  req: GenerateRequest,
+  analysis?: { description?: string; animal?: string },
+): Promise<GenerateResult> {
   const seed = req.seed ?? Date.now();
+  const decision: Decision = analysis?.description
+    ? { animal: req.animal ?? analysis.animal ?? ANIMALS[palette.mood]?.[0] ?? "小猫", description: analysis.description, byLLM: true }
+    : await decide(palette, req.animal, seed);
 
-  // ① 感知：提取调色板
-  const palette = await extractPalette(imageBuffer);
-
-  // ② 决策：选动物 + 意境描述（LLM 增强，失败回退规则）
-  const decision = await decide(palette, req.animal, seed);
-
-  // ③ 并行执行：抽象图（本地）、动物（万相）、名句（检索）
   const abstractSvg = generateAbstractSvg(palette.colors.map((c) => c.hex), req.style ?? "aurora", seed);
   const [animal, quote] = await Promise.all([
     generateAnimalImage(decision.animal, palette, decision.description, seed),
     Promise.resolve(pickQuote({ mood: palette.mood, brightness: palette.brightness }, new Set(), seed)),
   ]);
 
-  // ④ 组装
   return { palette, abstractSvg, animal, quote, decision, seed };
+}
+
+/** 上传图片抽卡：提取色板 → 生成 */
+export async function generateColorCard(imageBuffer: Buffer, req: GenerateRequest = {}): Promise<GenerateResult> {
+  const palette = await extractPalette(imageBuffer);
+  return generateCardFromPalette(palette, req);
+}
+
+/** 一句话抽卡：分析文字意境 → 生成 */
+export async function generateTextCard(text: string, req: GenerateRequest = {}): Promise<GenerateResult> {
+  const analysis = await analyzeText(text);
+  if (analysis) {
+    return generateCardFromPalette(
+      analysis.palette,
+      { ...req, animal: req.animal ?? analysis.animal },
+      { description: analysis.description, animal: analysis.animal },
+    );
+  }
+  const seed = req.seed ?? hashText(text);
+  const palette = randomPalette(seed);
+  return generateCardFromPalette(palette, req);
+}
+
+/** 直接抽卡：随机色板 → 生成 */
+export async function generateRandomCard(req: GenerateRequest = {}): Promise<GenerateResult> {
+  const seed = req.seed ?? Date.now();
+  const palette = randomPalette(seed);
+  return generateCardFromPalette(palette, req);
 }
 
 /** 单独换一只动物：重新提取调色板并生成（供 /api/animal 使用） */

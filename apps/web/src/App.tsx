@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchMeta, fetchPalette, generate, switchAbstract, switchAnimal, switchQuote } from "./api";
+import { fetchMeta, fetchPalette, generate, randomCard, switchAbstract, switchAnimal, switchQuote, textCard } from "./api";
 import type { AbstractStyle, AnimalResult, GenerateResult, Meta, Palette, Quote } from "./types";
 import { UploadZone } from "./components/UploadZone";
 import { ColorChips } from "./components/ColorChips";
@@ -39,12 +39,15 @@ const EMOJI: Record<string, string> = {
 
 type Phase = "idle" | "ready" | "generating" | "done";
 type BusyKey = "" | "animal" | "quote" | "abstract";
+type CardMode = "image" | "text" | "random";
 
 export default function App() {
   const [meta, setMeta] = useState<Meta>(DEFAULT_META);
   const [phase, setPhase] = useState<Phase>("idle");
+  const [mode, setMode] = useState<CardMode>("image");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [textInput, setTextInput] = useState("");
   const [palette, setPalette] = useState<Palette | null>(null);
   const [abstractSvg, setAbstractSvg] = useState("");
   const [animal, setAnimal] = useState<AnimalResult | null>(null);
@@ -62,6 +65,7 @@ export default function App() {
     setPhase("idle");
     setFile(null);
     setPreviewUrl("");
+    setTextInput("");
     setPalette(null);
     setAbstractSvg("");
     setAnimal(null);
@@ -71,6 +75,7 @@ export default function App() {
   }
 
   async function onFile(f: File) {
+    setMode("image");
     setFile(f);
     setError("");
     setPhase("ready");
@@ -100,21 +105,53 @@ export default function App() {
     setQuote(res.quote);
   }
 
-  async function onGenerate() {
-    if (!file) return;
+  async function onRandomCard() {
+    setMode("random");
     setPhase("generating");
     setError("");
     try {
-      const res = await generate(file, {
-        animal: animalChoice.trim() || undefined,
-        style,
-        seed: Date.now(),
-      });
+      const res = await randomCard({ style, seed: Date.now() });
       applyResult(res);
       setPhase("done");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
-      setPhase("ready");
+      setPhase("idle");
+    }
+  }
+
+  async function onTextCard() {
+    const t = textInput.trim();
+    if (!t) return;
+    setMode("text");
+    setPhase("generating");
+    setError("");
+    try {
+      const res = await textCard(t, { style, seed: Date.now() });
+      applyResult(res);
+      setPhase("done");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setPhase("idle");
+    }
+  }
+
+  async function onGenerate() {
+    setPhase("generating");
+    setError("");
+    try {
+      let res: GenerateResult;
+      if (mode === "image" && file) {
+        res = await generate(file, { animal: animalChoice.trim() || undefined, style, seed: Date.now() });
+      } else if (mode === "text") {
+        res = await textCard(textInput.trim(), { style, seed: Date.now() });
+      } else {
+        res = await randomCard({ style, seed: Date.now() });
+      }
+      applyResult(res);
+      setPhase("done");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setPhase(mode === "image" ? "ready" : "idle");
     }
   }
 
@@ -148,16 +185,20 @@ export default function App() {
   }
 
   async function onChangeAnimal(name?: string) {
-    if (!file) return;
-    const target = name ?? animalChoice;
     setBusy("animal");
     setError("");
     try {
-      const res = await switchAnimal(file, {
-        animal: target.trim() || undefined,
-        seed: Date.now(),
-      });
-      setAnimal(res.animal);
+      const target = (name ?? animalChoice).trim() || undefined;
+      if (mode === "image" && file) {
+        const res = await switchAnimal(file, { animal: target, seed: Date.now() });
+        setAnimal(res.animal);
+      } else if (mode === "text") {
+        const res = await textCard(textInput.trim(), { animal: target, style, seed: Date.now() });
+        applyResult(res);
+      } else {
+        const res = await randomCard({ animal: target, style, seed: Date.now() });
+        applyResult(res);
+      }
       if (name) setAnimalChoice(name);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -174,7 +215,7 @@ export default function App() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "色彩诗卡-" + animal.name + ".png";
+      a.download = "生命之流彩-" + animal.name + ".png";
       a.click();
       URL.revokeObjectURL(url);
     } catch (e) {
@@ -184,50 +225,77 @@ export default function App() {
 
   const animalChips = (meta.animals[palette?.mood ?? "neutral"] ?? meta.animals.neutral).slice(0, 6);
   const longQuote = (quote?.text.length ?? 0) > 22;
+  const sourceLabel = mode === "image" ? "照片" : mode === "text" ? "一句话" : "随机";
 
   return (
     <div className="min-h-screen">
       <div className="app-bg" />
 
       <main className="relative max-w-3xl mx-auto px-5 py-10">
-        {/* 头部 */}
         <header className="text-center mb-10 fade-up">
           <div className="inline-flex items-center gap-3">
-            <span className="text-3xl">🎨</span>
+            <span className="text-3xl">✨</span>
             <h1 className="font-display text-4xl md:text-5xl font-bold text-stone-800">
-              ColorPoet
-              <span className="block text-sm md:text-base text-stone-500 font-normal mt-1 tracking-[0.35em]">
-                色彩诗卡
+              生命之流彩
+              <span className="block text-sm md:text-base text-stone-500 font-normal mt-1 tracking-[0.28em]">
+                Flow of Life · 用卡片点亮一束光
               </span>
             </h1>
           </div>
-          <p className="mt-5 text-stone-500 max-w-lg mx-auto leading-relaxed text-sm">
-            上传一张照片，AI 为你提炼色彩、绘制抽象画，配一只可爱动物，题一句经典名句
+          <p className="mt-5 text-stone-500 max-w-xl mx-auto leading-relaxed text-sm">
+            一切如其所是，处处都是丰盛
+            <br />
+            样样都是完美，爱无处不在！
           </p>
         </header>
 
-        {/* 上传 / 配置 */}
         {phase !== "done" && (
           <section className="max-w-xl mx-auto fade-up">
             {phase === "idle" && (
-              <>
-                <UploadZone onFile={onFile} />
-                <div className="mt-6 text-center">
-                  <p className="text-xs text-stone-400 mb-3 tracking-widest">— 或者先试试这些示例 —</p>
-                  <div className="flex flex-wrap gap-3 justify-center">
-                    {EXAMPLES.map((e) => (
-                      <button
-                        key={e.file}
-                        onClick={() => onLoadExample(e.file)}
-                        className="group overflow-hidden rounded-xl border border-stone-200 bg-white/70 hover:border-amber-300 transition-all hover:-translate-y-1 shadow-sm"
-                      >
-                        <img src={"/examples/" + e.file} alt={e.label} className="w-28 h-20 object-cover" />
-                        <span className="block text-xs text-stone-600 py-1.5 group-hover:text-amber-700">{e.label}</span>
-                      </button>
-                    ))}
+              <div className="space-y-5">
+                <div className="glass p-6 text-center">
+                  <button className="btn btn-primary !px-8 !py-3 text-base" onClick={onRandomCard}>
+                    ✨ 直接抽一张卡
+                  </button>
+                  <p className="text-xs text-stone-400 mt-3">无需上传，随机配色，抽取属于你此刻的卡片</p>
+                </div>
+
+                <div className="glass p-6">
+                  <p className="text-sm text-stone-500 mb-3">💬 说一句话来抽卡</p>
+                  <div className="flex gap-2">
+                    <input
+                      className="input-line"
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") onTextCard(); }}
+                      placeholder="比如：黄昏的海边，风很温柔"
+                    />
+                    <button className="btn btn-primary shrink-0" onClick={onTextCard} disabled={!textInput.trim()}>
+                      抽卡
+                    </button>
                   </div>
                 </div>
-              </>
+
+                <div>
+                  <p className="text-sm text-stone-500 mb-3">🖼️ 或者，上传一张照片</p>
+                  <UploadZone onFile={onFile} />
+                  <div className="mt-4 text-center">
+                    <p className="text-xs text-stone-400 mb-3 tracking-widest">— 示例照片 —</p>
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      {EXAMPLES.map((e) => (
+                        <button
+                          key={e.file}
+                          onClick={() => onLoadExample(e.file)}
+                          className="group overflow-hidden rounded-xl border border-stone-200 bg-white/70 hover:border-amber-300 transition-all hover:-translate-y-1 shadow-sm"
+                        >
+                          <img src={"/examples/" + e.file} alt={e.label} className="w-28 h-20 object-cover" />
+                          <span className="block text-xs text-stone-600 py-1.5 group-hover:text-amber-700">{e.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
 
             {(phase === "ready" || phase === "generating") && (
@@ -285,7 +353,7 @@ export default function App() {
                   onClick={onGenerate}
                   disabled={phase === "generating"}
                 >
-                  {phase === "generating" ? "正在创作…" : "✨ 抽取我的色彩诗卡"}
+                  {phase === "generating" ? "正在创作…" : "✨ 抽取我的卡片"}
                 </button>
               </div>
             )}
@@ -300,15 +368,13 @@ export default function App() {
           </section>
         )}
 
-        {/* 诗卡展示 */}
         {phase === "done" && palette && animal && quote && (
           <section className="flex flex-col items-center">
-            {/* 诗卡 */}
             <div className="card-reveal w-full max-w-[430px]">
               <div className="poem-card">
                 <img src={svgToDataUri(abstractSvg)} alt="抽象色彩背景" className="card-bg" />
                 <div className="card-scrim" />
-                <div className="card-logo">🎨 ColorPoet <small>色彩诗卡</small></div>
+                <div className="card-logo">✨ 生命之流彩 <small>FLOW OF LIFE</small></div>
                 <div className="card-quote">
                   <p className="card-quote-text" style={longQuote ? { fontSize: "1.08rem" } : undefined}>
                     「{quote.text}」
@@ -338,12 +404,11 @@ export default function App() {
                       <span key={c.hex} className="card-swatch-dot" style={{ background: c.hex }} />
                     ))}
                   </div>
-                  <div className="card-en">A COLOR POEM<br />FOR YOUR MOMENT</div>
+                  <div className="card-en">ALL IS AS IT IS<br />ABUNDANCE EVERYWHERE</div>
                 </div>
               </div>
             </div>
 
-            {/* 操作区 */}
             <div className="glass p-5 mt-7 w-full max-w-[560px] fade-up">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <span className="text-sm text-stone-500">抽象风格</span>
@@ -386,10 +451,10 @@ export default function App() {
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-200/70">
                 <div className="flex items-center gap-2">
                   {previewUrl && <img src={previewUrl} alt="原图" className="w-10 h-10 rounded-lg object-cover shadow" />}
-                  <span className="text-xs text-stone-400">当前照片 · {meta.styleLabels[style]}</span>
+                  <span className="text-xs text-stone-400">来源 · {sourceLabel} · {meta.styleLabels[style]}</span>
                 </div>
                 <button className="btn btn-ghost !py-1.5 !px-4 text-sm" onClick={reset}>
-                  ↑ 上传新照片
+                  ↑ 回到首页
                 </button>
               </div>
             </div>
@@ -403,7 +468,7 @@ export default function App() {
         )}
 
         <footer className="text-center text-stone-400 text-xs mt-16">
-          ColorPoet 色彩诗卡 · 抽象色彩 × 通义万相 × 经典名句
+          生命之流彩 · 用卡片点亮一束光
         </footer>
       </main>
     </div>

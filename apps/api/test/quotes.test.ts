@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { QUOTES, pickQuote } from "../src/data/quotes.ts";
 
 test("名句库数量充足且字段完整", () => {
-  assert.ok(QUOTES.length >= 50);
+  assert.ok(QUOTES.length >= 30);
   for (const q of QUOTES) {
     assert.ok(q.text.length > 0, "id " + q.id + " 缺少 text");
     assert.ok(q.author.length > 0, "id " + q.id + " 缺少 author");

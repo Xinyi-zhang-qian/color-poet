@@ -66,12 +66,12 @@ export async function composePoster(input: PosterInput): Promise<Blob> {
 
   // 3. 左上 LOGO
   ctx.textAlign = "left";
-  ctx.font = "600 34px Georgia, Didot, serif";
+  ctx.font = "600 40px Songti SC, STSong, serif";
   ctx.fillStyle = "rgba(255,252,245,0.95)";
-  ctx.fillText("COLORPOET", 70, 90);
-  ctx.font = "22px Songti SC, STSong, serif";
+  ctx.fillText("生命之流彩", 70, 90);
+  ctx.font = "20px Georgia, Didot, serif";
   ctx.fillStyle = "rgba(255,252,245,0.7)";
-  ctx.fillText("色彩诗卡", 70, 122);
+  ctx.fillText("FLOW OF LIFE", 70, 124);
 
   // 4. 动物（右下角圆形）
   const ring = 300;
@@ -141,8 +141,8 @@ export async function composePoster(input: PosterInput): Promise<Blob> {
   ctx.textAlign = "right";
   ctx.font = "16px Georgia, Didot, serif";
   ctx.fillStyle = "rgba(253,250,244,0.6)";
-  ctx.fillText("A COLOR POEM", W - 70, H - 118);
-  ctx.fillText("FOR YOUR MOMENT", W - 70, H - 92);
+  ctx.fillText("ALL IS AS IT IS", W - 70, H - 118);
+  ctx.fillText("ABUNDANCE EVERYWHERE", W - 70, H - 92);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {

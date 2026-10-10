@@ -65,3 +65,11 @@ export async function switchAnimal(file: File, opts: GenerateOptions): Promise<{
   if (opts.seed !== undefined) form.append("seed", String(opts.seed));
   return postForm<{ palette: Palette; animal: AnimalResult }>("/api/animal", form);
 }
+
+export async function randomCard(opts: GenerateOptions = {}): Promise<GenerateResult> {
+  return postJson<GenerateResult>("/api/random-card", opts);
+}
+
+export async function textCard(text: string, opts: GenerateOptions = {}): Promise<GenerateResult> {
+  return postJson<GenerateResult>("/api/text-card", { text, ...opts });
+}

@@ -4,9 +4,10 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import sharp from "sharp";
 import { config, hasDashscopeKey } from "./config.js";
-import { generateColorCard, generateAnimalOnly, ANIMALS } from "./lib/agent.js";
+import { generateColorCard, generateAnimalOnly, generateTextCard, generateRandomCard, ANIMALS } from "./lib/agent.js";
 import type { GenerateRequest } from "./lib/agent.js";
 import { ABSTRACT_STYLES, ABSTRACT_STYLE_LABELS, generateAbstractSvg } from "./lib/abstract.js";
+import type { AbstractStyle } from "./lib/abstract.js";
 import { extractPalette } from "./lib/palette.js";
 import { pickQuote } from "./data/quotes.js";
 import type { Mood, Brightness } from "./lib/palette.js";
@@ -127,6 +128,28 @@ app.post("/api/animal", async (req) => {
   const { image, opts } = await readImageFromMultipart(req);
   await validateImage(image);
   return await generateAnimalOnly(image, opts);
+});
+
+function optsFromBody(body: { animal?: string; style?: string; seed?: number }): GenerateRequest {
+  const opts: GenerateRequest = { animal: body.animal?.trim() || undefined, seed: body.seed };
+  if ((ABSTRACT_STYLES as string[]).includes(body.style ?? "")) {
+    opts.style = body.style as AbstractStyle;
+  }
+  return opts;
+}
+
+// 一句话抽卡
+app.post("/api/text-card", async (req) => {
+  const body = (req.body ?? {}) as { text?: string; animal?: string; style?: string; seed?: number };
+  const text = (body.text ?? "").trim();
+  if (!text) throw Object.assign(new Error("请输入一句话"), { statusCode: 400 });
+  return await generateTextCard(text, optsFromBody(body));
+});
+
+// 直接抽卡（随机）
+app.post("/api/random-card", async (req) => {
+  const body = (req.body ?? {}) as { animal?: string; style?: string; seed?: number };
+  return await generateRandomCard(optsFromBody(body));
 });
 
 /* ---------- 错误处理 ---------- */
