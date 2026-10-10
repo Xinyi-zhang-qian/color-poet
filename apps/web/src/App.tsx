@@ -223,7 +223,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="glow-box p-5 mt-8 w-full max-w-[520px] fade-up flex flex-wrap items-center justify-center gap-2.5">
+            <div className="glow-box px-5 py-4 mt-6 w-full max-w-[420px] fade-up flex flex-wrap items-center justify-center gap-2">
               {meta.styles.map((s) => (
                 <button
                   key={s}

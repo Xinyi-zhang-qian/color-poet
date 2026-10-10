@@ -29,10 +29,10 @@ export interface GenerateResult {
 /* ---------------- 抽象画风格 Prompt 模板（AI 文生图） ---------------- */
 
 export const STYLE_PROMPTS: Record<AbstractStyle, string> = {
-  fluid: "一幅流动的流体艺术抽象画，颜料在画布上自然交融流淌，大理石般的液态纹理，颜色以 {colors} 为主，通透有层次，高级艺术感，无文字，无水印，无边框",
-  gradient: "一幅极简的抽象渐变画，柔和梦幻的多色渐变，颜色以 {colors} 为主，平滑过渡，通透轻盈，高级艺术感，无文字，无水印，无边框",
-  graffiti: "一幅街头涂鸦风格的抽象画，高饱和喷漆笔触自由挥洒，颜色以 {colors} 为主，有滴落与喷溅效果，都市前卫艺术感，无文字，无水印",
-  oil: "一幅厚涂油画抽象画，梵高风格的漩涡笔触，颜色以 {colors} 为主，颜料堆积有画布质感，表现力强烈，无文字，无水印",
+  fluid: "Fluid art painting, acrylic pouring technique, liquid marbled swirls, flowing organic patterns, colors: {colors}, elegant abstract, ultra detailed, no text, no watermark",
+  gradient: "Smooth gradient abstract art, soft dreamy color transitions, airy pastel tones, colors: {colors}, minimalist clean aesthetic, ultra detailed, no text, no watermark",
+  graffiti: "Street graffiti art, spray paint style, bold saturated colors, paint drips and splatter effects, urban hip-hop mural, colors: {colors}, raw energetic expression, no text, no watermark",
+  oil: "Oil painting, thick impasto brushstrokes, palette knife texture, van gogh swirling style, visible canvas texture, rich layered colors: {colors}, expressive masterpiece, no text, no watermark",
 };
 
 /* ---------------- 色板工具 ---------------- */
