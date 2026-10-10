@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 * {
@@ -15,145 +15,157 @@ html, body, #root {
 body {
   margin: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  color: #2b2620;
-  background: #f5efe6;
+  color: #ececee;
+  background: #0b0b0d;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- 明亮背景光斑 ---------- */
+/* ---------- 背景：参考图透明化 ---------- */
 .app-bg {
   position: fixed;
   inset: 0;
-  z-index: -1;
-  overflow: hidden;
-  background:
-    radial-gradient(42rem 42rem at 10% -8%, rgba(240, 190, 140, 0.35), transparent 60%),
-    radial-gradient(38rem 38rem at 92% 6%, rgba(170, 200, 220, 0.35), transparent 60%),
-    radial-gradient(50rem 50rem at 50% 112%, rgba(220, 170, 200, 0.28), transparent 60%),
-    #f5efe6;
+  z-index: -3;
+  background-image: url("/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.26;
+  filter: blur(3px) saturate(1.15);
 }
 .app-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.25;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Ccircle cx='60' cy='60' r='1' fill='%232b2620' opacity='0.4'/%3E%3C/svg%3E");
-  background-size: 120px 120px;
-  animation: drift 60s linear infinite;
+  background: radial-gradient(ellipse at center, rgba(11, 11, 13, 0.5) 0%, rgba(11, 11, 13, 0.92) 100%);
 }
-@keyframes drift {
-  from { transform: translateY(0); }
-  to { transform: translateY(-120px); }
+
+/* ---------- 动态光点 ---------- */
+.lights {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.light {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: twinkle 5s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.7); }
+  50% { opacity: 0.85; transform: scale(1.4); }
 }
 
 /* ---------- 字体 ---------- */
 .font-serif-cn {
-  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, "Times New Roman", serif;
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
 }
 .font-display {
   font-family: "Georgia", "Didot", "Songti SC", serif;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
 }
 
-/* ---------- 玻璃卡片 ---------- */
-.glass {
-  background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(60, 40, 20, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+/* ---------- 发光框 ---------- */
+.glow-box {
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 1.25rem;
-  box-shadow: 0 12px 40px rgba(90, 60, 30, 0.10);
+  background: rgba(22, 22, 25, 0.5);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 0 26px rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.05);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.glass-hover {
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s, box-shadow 0.35s;
-}
-.glass-hover:hover {
-  transform: translateY(-4px);
-  border-color: rgba(60, 40, 20, 0.16);
-  box-shadow: 0 20px 60px rgba(90, 60, 30, 0.16);
+.glow-box:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 46px rgba(255, 255, 255, 0.28), inset 0 0 28px rgba(255, 255, 255, 0.14);
+  transform: translateY(-3px);
 }
 
 /* ---------- 按钮 ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.72rem 1.5rem;
+  padding: 0.68rem 1.4rem;
   border-radius: 9999px;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #e8e8ea;
+  background: rgba(255, 255, 255, 0.07);
   transition: all 0.25s ease;
   user-select: none;
 }
+.btn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 .btn-primary {
-  color: #fff8f0;
-  background: linear-gradient(120deg, #e8a05a, #e07a4a 55%, #c95f4a);
-  box-shadow: 0 8px 26px rgba(220, 120, 70, 0.35);
+  color: #0b0b0d;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: transparent;
+  box-shadow: 0 0 26px rgba(255, 255, 255, 0.35);
 }
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 34px rgba(220, 120, 70, 0.5);
-}
-.btn-ghost {
-  color: #4a3a2c;
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(60, 40, 20, 0.16);
-}
-.btn-ghost:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(60, 40, 20, 0.32);
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
 }
 
-/* ---------- 上传区 ---------- */
+/* ---------- 输入框 ---------- */
+.input-line {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 1.1rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f0f0f2;
+  font-size: 0.9rem;
+}
+.input-line:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+}
+.input-line::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ---------- 上传框 ---------- */
 .dropzone {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 3rem 2rem;
-  border: 1.5px dashed rgba(60, 40, 20, 0.3);
-  border-radius: 1.5rem;
+  gap: 0.7rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.5);
+  padding: 1.5rem;
 }
-.dropzone:hover, .dropzone.dragging {
-  border-color: #e07a4a;
-  background: rgba(255, 245, 235, 0.8);
-  transform: scale(1.005);
-}
-
-/* ---------- 色卡 ---------- */
-.swatch {
-  position: relative;
-  border-radius: 0.9rem;
-  cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-}
-.swatch:hover {
-  transform: translateY(-5px) scale(1.06);
-  z-index: 2;
+.dropzone.dragging {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.4);
 }
 
-/* ---------- 诗卡（抽卡） ---------- */
+/* ---------- 诗卡 ---------- */
 .poem-card {
   position: relative;
   aspect-ratio: 3 / 4;
-  border-radius: 1.75rem;
+  border-radius: 1.5rem;
   overflow: hidden;
   box-shadow:
-    0 30px 80px rgba(70, 45, 20, 0.28),
-    0 4px 18px rgba(70, 45, 20, 0.18);
+    0 0 70px rgba(0, 0, 0, 0.55),
+    0 0 36px rgba(255, 255, 255, 0.14);
   isolation: isolate;
 }
 .poem-card::after {
@@ -161,9 +173,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
-    inset 0 0 70px rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
   pointer-events: none;
   z-index: 4;
 }
@@ -181,32 +191,23 @@ body {
   z-index: 1;
   background: linear-gradient(
     to top,
-    rgba(20, 14, 10, 0.5) 0%,
-    rgba(20, 14, 10, 0.2) 35%,
-    rgba(20, 14, 10, 0.12) 55%,
-    rgba(20, 14, 10, 0.04) 75%,
-    rgba(20, 14, 10, 0) 100%
+    rgba(12, 12, 14, 0.55) 0%,
+    rgba(12, 12, 14, 0.22) 38%,
+    rgba(12, 12, 14, 0.1) 58%,
+    rgba(12, 12, 14, 0.03) 78%,
+    rgba(12, 12, 14, 0) 100%
   );
 }
 .card-logo {
   position: absolute;
-  top: 1.4rem;
+  top: 1.3rem;
   left: 1.5rem;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: rgba(255, 252, 245, 0.92);
+  color: rgba(255, 255, 255, 0.92);
   font-family: Georgia, "Didot", serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.12em;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-}
-.card-logo small {
-  font-family: "Songti SC", serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  opacity: 0.85;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 .card-quote {
   position: absolute;
@@ -215,53 +216,30 @@ body {
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  padding: 0 2.2rem;
+  padding: 0 2rem;
   text-align: center;
-  color: #fdfaf4;
+  color: #fdfdfd;
 }
 .card-quote-text {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.55rem;
-  line-height: 1.75;
+  font-size: 1.5rem;
+  line-height: 1.8;
   font-weight: 600;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
   margin: 0;
 }
 .card-quote-author {
   margin: 0.7rem 0 0;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
   opacity: 0.88;
   font-family: "Songti SC", serif;
 }
-.card-animal {
-  position: absolute;
-  left: 0.8rem;
-  bottom: 8.5%;
-  z-index: 3;
-  width: 25%;
-  aspect-ratio: 1;
-  -webkit-mask-image: radial-gradient(circle at center, black 48%, transparent 72%);
-  mask-image: radial-gradient(circle at center, black 48%, transparent 72%);
-}
-.card-animal img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.card-animal-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-}
 .card-footer {
   position: absolute;
-  left: 1.5rem;
-  right: 1.5rem;
-  bottom: 1.15rem;
+  left: 1.4rem;
+  right: 1.4rem;
+  bottom: 1.1rem;
   z-index: 3;
   display: flex;
   align-items: flex-end;
@@ -281,9 +259,9 @@ body {
 }
 .card-en {
   text-align: right;
-  color: rgba(255, 252, 245, 0.78);
+  color: rgba(255, 255, 255, 0.72);
   font-family: Georgia, "Didot", serif;
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   letter-spacing: 0.22em;
   line-height: 1.5;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
@@ -296,14 +274,8 @@ body {
 }
 .fade-up { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
-@keyframes floaty {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.floaty { animation: floaty 5s ease-in-out infinite; }
-
 @keyframes cardReveal {
-  0% { opacity: 0; transform: perspective(1200px) rotateY(24deg) translateY(26px) scale(0.94); }
+  0% { opacity: 0; transform: perspective(1200px) rotateY(16deg) translateY(24px) scale(0.95); }
   100% { opacity: 1; transform: perspective(1200px) rotateY(0) translateY(0) scale(1); }
 }
 .card-reveal {
@@ -320,7 +292,7 @@ body {
   100% { background-position: 200% 0; }
 }
 .loading-shimmer {
-  background: linear-gradient(90deg, #6a4a2c 30%, #e07a4a 50%, #6a4a2c 70%);
+  background: linear-gradient(90deg, #d8d8da 30%, #ffffff 50%, #d8d8da 70%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -328,37 +300,6 @@ body {
   animation: shimmer 2.2s linear infinite;
 }
 
-/* 图片容器 */
-.img-frame {
-  overflow: hidden;
-  border-radius: 1rem;
-  background: rgba(0, 0, 0, 0.06);
-}
-.img-frame img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 输入框 */
-.input-line {
-  flex: 1;
-  min-width: 160px;
-  padding: 0.55rem 1.1rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(60, 40, 20, 0.16);
-  color: #2b2620;
-  font-size: 0.9rem;
-}
-.input-line:focus {
-  outline: none;
-  border-color: #e07a4a;
-  box-shadow: 0 0 0 3px rgba(224, 122, 74, 0.15);
-}
-
-/* 滚动条 */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: rgba(90, 60, 30, 0.2); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.16); border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }

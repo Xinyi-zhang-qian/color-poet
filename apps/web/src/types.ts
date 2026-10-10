@@ -22,36 +22,25 @@ export interface Quote {
   text: string;
   author: string;
   source?: string;
-  lang: "zh" | "translated" | "classical";
+  lang: "zh" | "translated";
   themes: string[];
   moods: Mood[];
   brightness: Brightness[];
 }
 
-export interface AnimalResult {
-  name: string;
-  imageDataUri?: string;
+export interface AbstractImageResult {
+  dataUri: string;
   fallback: boolean;
-  error?: string;
-}
-
-export interface Decision {
-  animal: string;
-  description: string;
-  byLLM: boolean;
 }
 
 export interface GenerateResult {
   palette: Palette;
-  abstractSvg: string;
-  animal: AnimalResult;
+  abstractImage: AbstractImageResult;
   quote: Quote;
-  decision: Decision;
   seed: number;
 }
 
 export interface Meta {
-  animals: Record<Mood, string[]>;
   styles: AbstractStyle[];
   styleLabels: Record<AbstractStyle, string>;
 }
