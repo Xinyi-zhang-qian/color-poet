@@ -1,4 +1,8 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+import { fileURLToPath } from "node:url";
+
+// monorepo 中 cwd 可能位于 apps/api，显式从项目根目录加载 .env
+loadEnv({ path: fileURLToPath(new URL("../../../.env", import.meta.url)) });
 
 function required(name: string, fallback?: string): string {
   const v = process.env[name] ?? fallback;
