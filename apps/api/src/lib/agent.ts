@@ -31,8 +31,8 @@ export interface GenerateResult {
 export const STYLE_PROMPTS: Record<AbstractStyle, string> = {
   fluid: "Fluid art painting, acrylic pouring technique, liquid marbled swirls, flowing organic patterns, colors: {colors}, elegant abstract, ultra detailed, no text, no watermark",
   gradient: "Smooth gradient abstract art, soft dreamy color transitions, airy pastel tones, colors: {colors}, minimalist clean aesthetic, ultra detailed, no text, no watermark",
-  watercolor: "Watercolor painting, soft translucent washes, delicate bleeding edges, wet-on-wet technique, airy and light, colors: {colors}, artistic elegant, no text, no watermark",
-  aurora: "Aurora borealis abstract art, flowing luminous light curtains in night sky, ethereal glowing waves, colors: {colors}, dreamy and mystical, no text, no watermark",
+  watercolor: "Watercolor painting, vibrant and luminous, rich saturated colors, translucent wet-on-wet washes, delicate bleeding edges, fresh bright and airy, colors: {colors}, artistic masterpiece, no text, no watermark",
+  aurora: "Northern lights aurora borealis in starry night sky, vivid green and violet luminous ribbons, vertical flowing translucent light curtains with wavy folds, glowing ethereal bands, majestic and dreamy, colors: {colors}, ultra detailed, no text, no watermark",
 };
 
 /* ---------------- 色板工具 ---------------- */

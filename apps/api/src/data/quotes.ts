@@ -85,6 +85,22 @@ export const QUOTES: Quote[] = [
   { id: 51, text: "登上顶峰的斗争本身，足以充实人的心灵。", author: "加缪", source: "西西弗神话", lang: "translated", themes: ["resilience", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
   { id: 52, text: "只有当心灵安静下来，才能看见真理。", author: "克里希那穆提", source: "生命之书", lang: "translated", themes: ["serenity", "philosophy"], moods: ["cool", "neutral"], brightness: ["dark"] },
   { id: 53, text: "正念是一种力量，它带我们回到当下，安住于生命的每一刻。", author: "一行禅师", lang: "translated", themes: ["presence", "serenity"], moods: ["neutral", "warm"], brightness: ["light"] },
+
+  // ---------- 更多哲学家 / 文学家（生命感悟） ----------
+  { id: 54, text: "生如夏花之绚烂，死如秋叶之静美。", author: "泰戈尔", source: "飞鸟集", lang: "translated", themes: ["vitality", "serenity", "philosophy"], moods: ["warm", "neutral"], brightness: ["balanced"] },
+  { id: 55, text: "天空没有留下翅膀的痕迹，但我已飞过。", author: "泰戈尔", source: "飞鸟集", lang: "translated", themes: ["freedom", "serenity"], moods: ["cool", "neutral"], brightness: ["light"] },
+  { id: 56, text: "世界以痛吻我，要我报之以歌。", author: "泰戈尔", source: "飞鸟集", lang: "translated", themes: ["resilience", "hope"], moods: ["warm", "cool"], brightness: ["balanced"] },
+  { id: 57, text: "即使被关在果壳之中，我仍自以为是无限宇宙之王。", author: "莎士比亚", source: "哈姆雷特", lang: "translated", themes: ["hope", "freedom", "philosophy"], moods: ["warm"], brightness: ["dark"] },
+  { id: 58, text: "一个人可以被毁灭，但不能被打败。", author: "海明威", source: "老人与海", lang: "translated", themes: ["resilience", "vitality"], moods: ["warm"], brightness: ["balanced"] },
+  { id: 59, text: "真正重要的东西，用眼睛是看不见的，只有用心才能看见。", author: "圣埃克苏佩里", source: "小王子", lang: "translated", themes: ["love", "philosophy"], moods: ["warm"], brightness: ["light"] },
+  { id: 60, text: "死并非生的对立面，而是作为生的一部分永存。", author: "村上春树", source: "挪威的森林", lang: "translated", themes: ["philosophy", "time"], moods: ["cool", "neutral"], brightness: ["dark"] },
+  { id: 61, text: "我思故我在。", author: "笛卡尔", source: "方法论", lang: "translated", themes: ["philosophy"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 62, text: "幸福是灵魂合乎德性的活动。", author: "亚里士多德", source: "尼各马可伦理学", lang: "translated", themes: ["philosophy", "hope"], moods: ["neutral", "warm"], brightness: ["balanced"] },
+  { id: 63, text: "我们不是因为事情困难而不敢做，而是因为不敢做，事情才变得困难。", author: "塞涅卡", source: "道德书简", lang: "translated", themes: ["resilience", "philosophy"], moods: ["warm"], brightness: ["light"] },
+  { id: 64, text: "生活只能倒着被理解，但必须正着被经历。", author: "克尔凯郭尔", lang: "translated", themes: ["philosophy", "time"], moods: ["cool", "neutral"], brightness: ["balanced"] },
+  { id: 65, text: "有何胜利可言，挺住意味着一切。", author: "里尔克", source: "给青年诗人的信", lang: "translated", themes: ["resilience", "philosophy"], moods: ["cool"], brightness: ["dark"] },
+  { id: 66, text: "你若要喜爱你自己的价值，你就得给世界创造价值。", author: "歌德", lang: "translated", themes: ["philosophy", "hope"], moods: ["warm"], brightness: ["light"] },
+  { id: 67, text: "我心里一直都在暗暗设想，天堂应该是图书馆的模样。", author: "博尔赫斯", lang: "translated", themes: ["serenity", "philosophy"], moods: ["neutral", "warm"], brightness: ["balanced"] },
 ];
 
 function mulberry32(seed: number): () => number {
