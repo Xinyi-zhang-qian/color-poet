@@ -16,8 +16,8 @@ export function ColorChips({ palette }: { palette: Palette }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-xs text-white/50">主色调</span>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/80">
+        <span className="text-xs text-stone-500">主色调</span>
+        <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">
           {moodLabels[palette.mood]} · {brightLabels[palette.brightness]}
         </span>
       </div>

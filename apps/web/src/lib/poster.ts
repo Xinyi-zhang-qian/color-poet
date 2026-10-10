@@ -42,16 +42,6 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   return lines;
 }
 
-function roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.arcTo(x + w, y, x + w, y + h, r);
-  ctx.arcTo(x + w, y + h, x, y + h, r);
-  ctx.arcTo(x, y + h, x, y, r);
-  ctx.arcTo(x, y, x + w, y, r);
-  ctx.closePath();
-}
-
 export async function composePoster(input: PosterInput): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -59,88 +49,100 @@ export async function composePoster(input: PosterInput): Promise<Blob> {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("当前浏览器不支持 Canvas");
 
-  // 1. 抽象背景
+  // 1. 抽象背景铺满
   const bg = await loadImage(svgToDataUri(input.abstractSvg));
   const scale = Math.max(W / bg.width, H / bg.height);
   const dw = bg.width * scale;
   const dh = bg.height * scale;
   ctx.drawImage(bg, (W - dw) / 2, (H - dh) / 2, dw, dh);
 
-  // 2. 底部渐变遮罩
-  const grad = ctx.createLinearGradient(0, H * 0.52, 0, H);
-  grad.addColorStop(0, "rgba(12,10,18,0)");
-  grad.addColorStop(1, "rgba(12,10,18,0.78)");
+  // 2. 底部柔和遮罩（提升文字可读性）
+  const grad = ctx.createLinearGradient(0, H * 0.45, 0, H);
+  grad.addColorStop(0, "rgba(20,14,10,0)");
+  grad.addColorStop(0.55, "rgba(20,14,10,0.28)");
+  grad.addColorStop(1, "rgba(20,14,10,0.72)");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // 3. 动物（圆形，居中上方）
-  const ring = 500;
-  const cy = H * 0.32;
+  // 3. 左上 LOGO
+  ctx.textAlign = "left";
+  ctx.font = "600 34px Georgia, Didot, serif";
+  ctx.fillStyle = "rgba(255,252,245,0.95)";
+  ctx.fillText("COLORPOET", 70, 90);
+  ctx.font = "22px Songti SC, STSong, serif";
+  ctx.fillStyle = "rgba(255,252,245,0.7)";
+  ctx.fillText("色彩诗卡", 70, 122);
+
+  // 4. 动物（右下角圆形）
+  const ring = 300;
+  const cx = W - 210;
+  const cy = H - 360;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, ring / 2, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.clip();
   if (input.animal.imageDataUri) {
     const img = await loadImage(input.animal.imageDataUri);
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(W / 2, cy, ring / 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.clip();
     const s = Math.max(ring / img.width, ring / img.height);
     const iw = img.width * s;
     const ih = img.height * s;
-    ctx.drawImage(img, (W - iw) / 2, cy - ih / 2, iw, ih);
-    ctx.restore();
-    ctx.beginPath();
-    ctx.arc(W / 2, cy, ring / 2, 0, Math.PI * 2);
-    ctx.lineWidth = 8;
-    ctx.strokeStyle = "rgba(255,255,255,0.55)";
-    ctx.stroke();
+    ctx.drawImage(img, cx - iw / 2, cy - ih / 2, iw, ih);
   } else {
-    // 无图占位：色块圆 + 动物名
-    ctx.beginPath();
-    ctx.arc(W / 2, cy, ring / 2, 0, Math.PI * 2);
-    ctx.fillStyle = input.palette.colors[0]?.hex ?? "#555";
-    ctx.fill();
+    ctx.fillStyle = input.palette.colors[0]?.hex ?? "#e8a05a";
+    ctx.fillRect(cx - ring / 2, cy - ring / 2, ring, ring);
     ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.font = "bold 64px sans-serif";
+    ctx.font = "bold 90px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(input.animal.name, W / 2, cy);
+    ctx.fillText(input.animal.name, cx, cy);
   }
+  ctx.restore();
+  ctx.beginPath();
+  ctx.arc(cx, cy, ring / 2, 0, Math.PI * 2);
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = "rgba(255,255,255,0.85)";
+  ctx.stroke();
 
-  // 4. 诗句
+  // 5. 诗句（中下部）
   ctx.textAlign = "center";
-  ctx.fillStyle = "#f7f2e8";
-  ctx.font = 'bold 54px "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif';
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#fdfaf4";
+  const fontSize = input.quote.text.length > 22 ? 44 : 56;
+  ctx.font = "600 " + fontSize + "px Songti SC, STSong, Noto Serif CJK SC, Georgia, serif";
   const lines = wrapText(ctx, "「" + input.quote.text + "」", W - 220);
   let textY = H * 0.62;
   lines.forEach((line) => {
     ctx.fillText(line, W / 2, textY);
-    textY += 78;
+    textY += fontSize * 1.42;
   });
 
-  // 5. 作者 / 出处
-  ctx.font = '30px "Songti SC", "STSong", serif';
-  ctx.fillStyle = "rgba(247,242,232,0.75)";
+  // 6. 作者 / 出处
+  ctx.font = "30px Songti SC, STSong, serif";
+  ctx.fillStyle = "rgba(253,250,244,0.78)";
   const attribution = "—— " + input.quote.author + (input.quote.source ? "《" + input.quote.source + "》" : "");
-  ctx.fillText(attribution, W / 2, textY + 40);
+  ctx.fillText(attribution, W / 2, textY + 30);
 
-  // 6. 色卡
+  // 7. 色卡（底部左）+ 英文标语（底部右）
   const chips = input.palette.colors.slice(0, 5);
-  const chipSize = 84;
-  const gap = 20;
-  const total = chips.length * chipSize + (chips.length - 1) * gap;
-  let x = (W - total) / 2;
-  const chipY = H - 190;
+  let x = 70;
+  const dotY = H - 108;
   chips.forEach((c) => {
+    ctx.beginPath();
+    ctx.arc(x + 20, dotY, 20, 0, Math.PI * 2);
     ctx.fillStyle = c.hex;
-    roundedRect(ctx, x, chipY, chipSize, chipSize, 18);
     ctx.fill();
-    x += chipSize + gap;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "rgba(255,255,255,0.8)";
+    ctx.stroke();
+    x += 54;
   });
 
-  // 7. 品牌
-  ctx.font = '26px "Songti SC", serif';
-  ctx.fillStyle = "rgba(247,242,232,0.55)";
-  ctx.fillText("色彩诗卡 · ColorPoet", W / 2, H - 56);
+  ctx.textAlign = "right";
+  ctx.font = "16px Georgia, Didot, serif";
+  ctx.fillStyle = "rgba(253,250,244,0.6)";
+  ctx.fillText("A COLOR POEM", W - 70, H - 118);
+  ctx.fillText("FOR YOUR MOMENT", W - 70, H - 92);
 
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {

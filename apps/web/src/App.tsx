@@ -4,8 +4,6 @@ import type { AbstractStyle, AnimalResult, GenerateResult, Meta, Palette, Quote 
 import { UploadZone } from "./components/UploadZone";
 import { ColorChips } from "./components/ColorChips";
 import { StylePicker } from "./components/StylePicker";
-import { AnimalPanel } from "./components/AnimalPanel";
-import { QuotePanel } from "./components/QuotePanel";
 import { composePoster, svgToDataUri } from "./lib/poster";
 
 const DEFAULT_META: Meta = {
@@ -14,8 +12,15 @@ const DEFAULT_META: Meta = {
     cool: ["雪狐", "企鹅", "鲸鱼", "猫头鹰", "海豹", "白兔"],
     neutral: ["仓鼠", "水獭", "海豹", "熊猫", "刺猬", "树懒"],
   },
-  styles: ["aurora", "mondrian", "gradients", "flow"],
-  styleLabels: { aurora: "极光幻梦", mondrian: "蒙德里安", gradients: "柔光渐变", flow: "流体涟漪" },
+  styles: ["aurora", "mondrian", "gradients", "flow", "oil", "vivid"],
+  styleLabels: {
+    aurora: "极光幻梦",
+    mondrian: "蒙德里安",
+    gradients: "柔光渐变",
+    flow: "流体涟漪",
+    oil: "油画质感",
+    vivid: "绚烂霓虹",
+  },
 };
 
 const EXAMPLES = [
@@ -24,6 +29,13 @@ const EXAMPLES = [
   { file: "forest.jpg", label: "🌲 森林" },
   { file: "aurora.jpg", label: "🌌 极光" },
 ];
+
+const EMOJI: Record<string, string> = {
+  "柴犬": "🐕", "橘猫": "🐱", "小猫": "🐱", "小鹿": "🦌", "兔子": "🐰", "白兔": "🐇",
+  "熊猫": "🐼", "龙猫": "🐹", "柯基": "🐶", "小熊": "🐻", "雪狐": "🦊", "企鹅": "🐧",
+  "小企鹅": "🐧", "鲸鱼": "🐳", "猫头鹰": "🦉", "海豹": "🦭", "雪鸮": "🦉", "北极熊": "🐻‍❄️",
+  "仓鼠": "🐹", "水獭": "🦦", "刺猬": "🦔", "树懒": "🦥",
+};
 
 type Phase = "idle" | "ready" | "generating" | "done";
 type BusyKey = "" | "animal" | "quote" | "abstract";
@@ -70,12 +82,12 @@ export default function App() {
     fetchPalette(f).then(setPalette).catch(() => {});
   }
 
-  async function onLoadExample(file: string) {
+  async function onLoadExample(fileName: string) {
     setError("");
     try {
-      const res = await fetch("/examples/" + file);
+      const res = await fetch("/examples/" + fileName);
       const blob = await res.blob();
-      await onFile(new File([blob], file, { type: "image/jpeg" }));
+      await onFile(new File([blob], fileName, { type: "image/jpeg" }));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -171,39 +183,46 @@ export default function App() {
   }
 
   const animalChips = (meta.animals[palette?.mood ?? "neutral"] ?? meta.animals.neutral).slice(0, 6);
+  const longQuote = (quote?.text.length ?? 0) > 22;
 
   return (
     <div className="min-h-screen">
       <div className="app-bg" />
 
-      <main className="relative max-w-6xl mx-auto px-5 py-10">
+      <main className="relative max-w-3xl mx-auto px-5 py-10">
         {/* 头部 */}
         <header className="text-center mb-10 fade-up">
-          <h1 className="font-display text-4xl md:text-5xl font-bold tracking-wide">
-            色彩诗卡 <span className="text-2xl md:text-3xl text-white/40 font-normal">· ColorPoet</span>
-          </h1>
-          <p className="mt-4 text-white/55 max-w-2xl mx-auto leading-relaxed">
-            上传一张照片，AI 提取主色调，绘一幅抽象色彩，配一只可爱动漫动物，题一句经典名句
+          <div className="inline-flex items-center gap-3">
+            <span className="text-3xl">🎨</span>
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-stone-800">
+              ColorPoet
+              <span className="block text-sm md:text-base text-stone-500 font-normal mt-1 tracking-[0.35em]">
+                色彩诗卡
+              </span>
+            </h1>
+          </div>
+          <p className="mt-5 text-stone-500 max-w-lg mx-auto leading-relaxed text-sm">
+            上传一张照片，AI 为你提炼色彩、绘制抽象画，配一只可爱动物，题一句经典名句
           </p>
         </header>
 
         {/* 上传 / 配置 */}
         {phase !== "done" && (
-          <section className="max-w-2xl mx-auto fade-up">
+          <section className="max-w-xl mx-auto fade-up">
             {phase === "idle" && (
               <>
                 <UploadZone onFile={onFile} />
-                <div className="mt-7 text-center">
-                  <p className="text-xs text-white/40 mb-3 tracking-widest">— 或者先试试这些示例 —</p>
+                <div className="mt-6 text-center">
+                  <p className="text-xs text-stone-400 mb-3 tracking-widest">— 或者先试试这些示例 —</p>
                   <div className="flex flex-wrap gap-3 justify-center">
                     {EXAMPLES.map((e) => (
                       <button
                         key={e.file}
                         onClick={() => onLoadExample(e.file)}
-                        className="group overflow-hidden rounded-xl border border-white/12 hover:border-white/30 transition-all hover:-translate-y-1 bg-white/4"
+                        className="group overflow-hidden rounded-xl border border-stone-200 bg-white/70 hover:border-amber-300 transition-all hover:-translate-y-1 shadow-sm"
                       >
                         <img src={"/examples/" + e.file} alt={e.label} className="w-28 h-20 object-cover" />
-                        <span className="block text-xs text-white/70 py-1.5 group-hover:text-white">{e.label}</span>
+                        <span className="block text-xs text-stone-600 py-1.5 group-hover:text-amber-700">{e.label}</span>
                       </button>
                     ))}
                   </div>
@@ -213,14 +232,13 @@ export default function App() {
 
             {(phase === "ready" || phase === "generating") && (
               <div className="glass p-6">
-                <div className="flex gap-5 items-center">
-                  {previewUrl && <img src={previewUrl} alt="预览" className="w-28 h-28 rounded-xl object-cover shrink-0" />}
+                <div className="flex gap-4 items-center">
+                  {previewUrl && (
+                    <img src={previewUrl} alt="预览" className="w-24 h-24 rounded-xl object-cover shrink-0 shadow" />
+                  )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/50">已选择照片</p>
-                    <button
-                      className="text-sm text-white/70 underline underline-offset-4 mt-1 hover:text-white"
-                      onClick={reset}
-                    >
+                    <p className="text-sm text-stone-500">已选择照片</p>
+                    <button className="text-sm text-stone-600 underline underline-offset-4 mt-1 hover:text-amber-700" onClick={reset}>
                       重新选择
                     </button>
                   </div>
@@ -233,13 +251,13 @@ export default function App() {
                 )}
 
                 <div className="mt-5">
-                  <label className="text-sm text-white/60">想要什么动物？</label>
+                  <label className="text-sm text-stone-500">想要什么动物？</label>
                   <div className="flex gap-2 mt-2">
                     <input
                       value={animalChoice}
                       onChange={(e) => setAnimalChoice(e.target.value)}
                       placeholder="留空让 AI 决定，或输入任意动物"
-                      className="flex-1 min-w-[160px] px-4 py-2 rounded-full bg-white/8 border border-white/15 text-sm focus:outline-none focus:border-amber-300/60 transition-colors"
+                      className="input-line"
                     />
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2.5">
@@ -247,7 +265,7 @@ export default function App() {
                       <button
                         key={a}
                         onClick={() => setAnimalChoice(a)}
-                        className="px-2.5 py-1 rounded-full text-xs bg-white/8 border border-white/10 hover:bg-white/16 transition-colors"
+                        className="px-2.5 py-1 rounded-full text-xs bg-white/80 border border-stone-200 text-stone-600 hover:bg-amber-50 hover:border-amber-300 transition-colors"
                       >
                         {a}
                       </button>
@@ -256,7 +274,7 @@ export default function App() {
                 </div>
 
                 <div className="mt-6">
-                  <label className="text-sm text-white/60">抽象画风格</label>
+                  <label className="text-sm text-stone-500">抽象画风格</label>
                   <div className="mt-2">
                     <StylePicker styles={meta.styles} labels={meta.styleLabels} current={style} onChange={setStyle} />
                   </div>
@@ -267,114 +285,125 @@ export default function App() {
                   onClick={onGenerate}
                   disabled={phase === "generating"}
                 >
-                  {phase === "generating" ? "正在创作…" : "✨ 生成我的色彩诗卡"}
+                  {phase === "generating" ? "正在创作…" : "✨ 抽取我的色彩诗卡"}
                 </button>
               </div>
             )}
 
             {phase === "generating" && (
               <div className="mt-10 text-center fade-up">
-                <div className="inline-block w-11 h-11 rounded-full border-2 border-white/15 border-t-amber-300 animate-spin" />
-                <p className="mt-5 loading-shimmer text-lg">正在调配色彩 · 召唤伙伴 · 寻找诗句…</p>
-                <p className="text-xs text-white/40 mt-2">首次生成约需 10~60 秒（含 AI 绘图）</p>
+                <div className="inline-block w-11 h-11 rounded-full border-2 border-stone-200 border-t-amber-500 animate-spin" />
+                <p className="mt-5 loading-shimmer text-lg">正在调色 · 召唤伙伴 · 寻找诗句…</p>
+                <p className="text-xs text-stone-400 mt-2">首次生成约需 10~60 秒（含 AI 绘图）</p>
               </div>
             )}
           </section>
         )}
 
-        {/* 结果展示 */}
+        {/* 诗卡展示 */}
         {phase === "done" && palette && animal && quote && (
-          <section className="fade-up">
-            <div className="glass p-5 mb-6 flex flex-wrap items-center gap-5 justify-between">
-              <div className="flex items-center gap-4 flex-1 min-w-[260px]">
-                {previewUrl && <img src={previewUrl} alt="原图" className="w-16 h-16 rounded-xl object-cover shrink-0" />}
-                <div className="flex-1 min-w-[220px]">
-                  <ColorChips palette={palette} />
+          <section className="flex flex-col items-center">
+            {/* 诗卡 */}
+            <div className="card-reveal w-full max-w-[430px]">
+              <div className="poem-card">
+                <img src={svgToDataUri(abstractSvg)} alt="抽象色彩背景" className="card-bg" />
+                <div className="card-scrim" />
+                <div className="card-logo">🎨 ColorPoet <small>色彩诗卡</small></div>
+                <div className="card-quote">
+                  <p className="card-quote-text" style={longQuote ? { fontSize: "1.08rem" } : undefined}>
+                    「{quote.text}」
+                  </p>
+                  <p className="card-quote-author">
+                    —— {quote.author}{quote.source ? "《" + quote.source + "》" : ""}
+                  </p>
                 </div>
-              </div>
-              <button className="btn btn-ghost shrink-0" onClick={reset}>
-                ↑ 上传新照片
-              </button>
-            </div>
-
-            <div className="grid lg:grid-cols-3 gap-6">
-              {/* 抽象色彩 */}
-              <div className="glass glass-hover p-4 flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm text-white/60">抽象色彩</h3>
-                  <span className="text-xs text-white/40">{meta.styleLabels[style]}</span>
-                </div>
-                <div className="img-frame aspect-square">
-                  <img src={svgToDataUri(abstractSvg)} alt="抽象色彩画" />
-                </div>
-                <div className="mt-4">
-                  <StylePicker
-                    styles={meta.styles}
-                    labels={meta.styleLabels}
-                    current={style}
-                    onChange={(s) => onChangeStyle(s)}
-                  />
-                </div>
-              </div>
-
-              {/* 动漫动物 */}
-              <div className="glass glass-hover p-4 flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm text-white/60">动漫伙伴</h3>
-                  <button
-                    className="text-xs text-white/50 hover:text-white transition-colors disabled:opacity-50"
-                    onClick={() => onChangeAnimal()}
-                    disabled={busy === "animal"}
-                  >
-                    {busy === "animal" ? "生成中…" : "↻ 换一只"}
-                  </button>
-                </div>
-                <AnimalPanel animal={animal} paletteHex={palette.colors.map((c) => c.hex)} />
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {animalChips.map((a) => (
-                    <button
-                      key={a}
-                      onClick={() => onChangeAnimal(a)}
-                      disabled={busy === "animal"}
-                      className="px-2.5 py-1 rounded-full text-xs bg-white/8 border border-white/10 hover:bg-white/16 transition-colors disabled:opacity-50"
+                <div className="card-animal">
+                  {animal.imageDataUri ? (
+                    <img src={animal.imageDataUri} alt={animal.name} />
+                  ) : (
+                    <div
+                      className="card-animal-fallback"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, " + (palette.colors[0]?.hex ?? "#e8a05a") + ", " + (palette.colors[1]?.hex ?? "#c95f4a") + ")",
+                      }}
                     >
-                      {a}
-                    </button>
-                  ))}
+                      {EMOJI[animal.name] ?? "🐾"}
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              {/* 名句 */}
-              <div className="glass glass-hover p-4 flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm text-white/60">题一句</h3>
-                </div>
-                <div className="flex-1">
-                  <QuotePanel quote={quote} onRefresh={onChangeQuote} />
+                <div className="card-footer">
+                  <div className="card-swatches">
+                    {palette.colors.slice(0, 5).map((c) => (
+                      <span key={c.hex} className="card-swatch-dot" style={{ background: c.hex }} />
+                    ))}
+                  </div>
+                  <div className="card-en">A COLOR POEM<br />FOR YOUR MOMENT</div>
                 </div>
               </div>
             </div>
 
-            {/* 底部操作 */}
-            <div className="flex flex-wrap gap-4 justify-center mt-9">
-              <button className="btn btn-primary !px-7" onClick={onDownload}>
-                ⬇ 下载诗卡
-              </button>
-              <button className="btn btn-ghost" onClick={onGenerate}>
-                🔄 全部重新生成
-              </button>
+            {/* 操作区 */}
+            <div className="glass p-5 mt-7 w-full max-w-[560px] fade-up">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <span className="text-sm text-stone-500">抽象风格</span>
+                <StylePicker
+                  styles={meta.styles}
+                  labels={meta.styleLabels}
+                  current={style}
+                  onChange={(s) => onChangeStyle(s)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 mt-5">
+                <button className="btn btn-ghost justify-center text-sm" onClick={() => onChangeAnimal()} disabled={busy === "animal"}>
+                  {busy === "animal" ? "生成中…" : "🐾 换一只动物"}
+                </button>
+                <button className="btn btn-ghost justify-center text-sm" onClick={onChangeQuote} disabled={busy === "quote"}>
+                  {busy === "quote" ? "换句中…" : "✍️ 换一句诗"}
+                </button>
+                <button className="btn btn-primary justify-center text-sm" onClick={onDownload}>
+                  ⬇ 下载诗卡
+                </button>
+                <button className="btn btn-ghost justify-center text-sm" onClick={onGenerate}>
+                  🔄 重新生成
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {animalChips.map((a) => (
+                  <button
+                    key={a}
+                    onClick={() => onChangeAnimal(a)}
+                    disabled={busy === "animal"}
+                    className="px-2.5 py-1 rounded-full text-xs bg-white/80 border border-stone-200 text-stone-600 hover:bg-amber-50 hover:border-amber-300 transition-colors disabled:opacity-50"
+                  >
+                    {a}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-200/70">
+                <div className="flex items-center gap-2">
+                  {previewUrl && <img src={previewUrl} alt="原图" className="w-10 h-10 rounded-lg object-cover shadow" />}
+                  <span className="text-xs text-stone-400">当前照片 · {meta.styleLabels[style]}</span>
+                </div>
+                <button className="btn btn-ghost !py-1.5 !px-4 text-sm" onClick={reset}>
+                  ↑ 上传新照片
+                </button>
+              </div>
             </div>
           </section>
         )}
 
         {error && (
-          <div className="mt-8 text-center text-rose-300 text-sm bg-rose-500/10 border border-rose-400/20 rounded-xl px-4 py-3">
+          <div className="mt-8 text-center text-rose-600 text-sm bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
             {error}
           </div>
         )}
 
-        <footer className="text-center text-white/30 text-xs mt-20">
-          色彩诗卡 ColorPoet · 抽象色彩 × 通义万相 × 经典名句
+        <footer className="text-center text-stone-400 text-xs mt-16">
+          ColorPoet 色彩诗卡 · 抽象色彩 × 通义万相 × 经典名句
         </footer>
       </main>
     </div>

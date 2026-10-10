@@ -30,8 +30,8 @@ export function UploadZone({ onFile }: { onFile: (f: File) => void }) {
       />
       <div className="text-6xl floaty">🖼️</div>
       <div>
-        <p className="text-lg font-medium">拖入或点击上传一张照片</p>
-        <p className="text-sm text-white/50 mt-1">支持 JPG / PNG，建议自然风景或生活照片</p>
+        <p className="text-lg font-medium text-stone-700">拖入或点击上传一张照片</p>
+        <p className="text-sm text-stone-400 mt-1">支持 JPG / PNG，建议自然风景或生活照片</p>
       </div>
     </div>
   );

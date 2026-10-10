@@ -4,7 +4,7 @@ import { generateAbstractSvg, svgToPng, ABSTRACT_STYLES } from "../src/lib/abstr
 
 const colors = ["#e63946", "#f1faee", "#a8dadc", "#1d3557", "#457b9d"];
 
-test("四种风格都生成合法 SVG", () => {
+test("所有风格都生成合法 SVG", () => {
   for (const s of ABSTRACT_STYLES) {
     const svg = generateAbstractSvg(colors, s, 42);
     assert.ok(svg.startsWith("<svg"), s + " 应以 <svg 开头");

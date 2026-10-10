@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
-export type AbstractStyle = "aurora" | "mondrian" | "gradients" | "flow";
-export const ABSTRACT_STYLES: AbstractStyle[] = ["aurora", "mondrian", "gradients", "flow"];
+export type AbstractStyle = "aurora" | "mondrian" | "gradients" | "flow" | "oil" | "vivid";
+export const ABSTRACT_STYLES: AbstractStyle[] = ["aurora", "mondrian", "gradients", "flow", "oil", "vivid"];
 
 const SIZE = 1200;
 
@@ -27,6 +27,43 @@ function mix(c1: string, c2: string, t: number): string {
   return "#" + v.map((x) => x.toString(16).padStart(2, "0")).join("");
 }
 
+/* ---------------- HSL 工具（用于油画 / 绚烂风格的色彩扩展） ---------------- */
+
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const [r, g, b] = hexToRgb(hex).map((v) => v / 255) as [number, number, number];
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  let h = 0;
+  let s = 0;
+  if (d !== 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  h = ((h % 360) + 360) % 360;
+  s = Math.max(0, Math.min(100, s));
+  l = Math.max(0, Math.min(100, l));
+  const c = (1 - Math.abs((2 * l) / 100 - 1)) * (s / 100);
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = l / 100 - c / 2;
+  let rgb: [number, number, number];
+  if (h < 60) rgb = [c, x, 0];
+  else if (h < 120) rgb = [x, c, 0];
+  else if (h < 180) rgb = [0, c, x];
+  else if (h < 240) rgb = [0, x, c];
+  else if (h < 300) rgb = [x, 0, c];
+  else rgb = [c, 0, x];
+  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, "0");
+  return "#" + toHex(rgb[0]) + toHex(rgb[1]) + toHex(rgb[2]);
+}
+
 function paletteOrDefault(colors: string[]): string[] {
   const defaults = ["#2b2d42", "#8d99ae", "#ef233c", "#edf2f4"];
   return colors.length >= 2 ? colors : defaults;
@@ -36,7 +73,7 @@ function paletteOrDefault(colors: string[]): string[] {
 
 function aurora(colors: string[], rand: () => number): string {
   const c = paletteOrDefault(colors);
-  const bg = c.reduce((a, b) => (a < b ? a : b), c[0]!); // 取较暗色做背景（简化为最靠前的深色）
+  const bg = c.reduce((a, b) => (a < b ? a : b), c[0]!);
   const bg2 = mix(bg, "#0b0b14", 0.6);
   const ribbons = c.slice(0, Math.min(5, c.length));
   let paths = "";
@@ -51,7 +88,6 @@ function aurora(colors: string[], rand: () => number): string {
     }
     paths += `<path d="${d}" fill="none" stroke="${color}" stroke-width="${90 - i * 8}" stroke-linecap="round" opacity="${0.55 + i * 0.06}" filter="url(#soft)"/>`;
   });
-  // 点缀光点
   let dots = "";
   for (let i = 0; i < 26; i++) {
     const cx = rand() * SIZE;
@@ -75,7 +111,6 @@ function aurora(colors: string[], rand: () => number): string {
 function mondrian(colors: string[], rand: () => number): string {
   const c = paletteOrDefault(colors);
   const whites = ["#f6f2ea", "#ffffff", "#efe9dd"];
-  // 递归分割
   interface Rect { x: number; y: number; w: number; h: number; }
   const rects: Rect[] = [];
   const stack: Rect[] = [{ x: 0, y: 0, w: SIZE, h: SIZE }];
@@ -119,7 +154,6 @@ function gradients(colors: string[], rand: () => number): string {
     const color = c[i]!;
     circles += `<circle cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" r="${r.toFixed(0)}" fill="${color}" opacity="${0.45 + rand() * 0.3}" filter="url(#soft)"/>`;
   }
-  // 顶部叠加细微纹理圆点
   let dots = "";
   for (let i = 0; i < 40; i++) {
     const color = c[Math.floor(rand() * c.length)]!;
@@ -157,10 +191,78 @@ function flow(colors: string[], rand: () => number): string {
 </svg>`;
 }
 
+/** 油画质感：大量随机椭圆笔触 + 明暗变体，营造厚涂效果 */
+function oil(colors: string[], rand: () => number): string {
+  const c = paletteOrDefault(colors);
+  const bg = mix(c[0]!, "#141210", 0.55);
+  let strokes = "";
+  for (let i = 0; i < 46; i++) {
+    const color = c[Math.floor(rand() * c.length)]!;
+    const { h, s, l } = hexToHsl(color);
+    const variant = hslToHex(h, s, Math.max(8, Math.min(92, l + (rand() * 40 - 20))));
+    const cx = rand() * SIZE;
+    const cy = rand() * SIZE;
+    const rx = 24 + rand() * 110;
+    const ry = 16 + rand() * 60;
+    const rot = rand() * 360;
+    strokes += `<ellipse cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="${variant}" opacity="${0.28 + rand() * 0.35}" transform="rotate(${rot.toFixed(0)} ${cx.toFixed(0)} ${cy.toFixed(0)})"/>`;
+  }
+  for (let i = 0; i < 30; i++) {
+    const color = c[Math.floor(rand() * c.length)]!;
+    const { h, s, l } = hexToHsl(color);
+    const variant = hslToHex(h, s, Math.max(20, Math.min(95, l + 12 + rand() * 18)));
+    const cx = rand() * SIZE;
+    const cy = rand() * SIZE;
+    const rx = 10 + rand() * 40;
+    const ry = 6 + rand() * 22;
+    const rot = rand() * 360;
+    strokes += `<ellipse cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="${variant}" opacity="${0.35 + rand() * 0.3}" transform="rotate(${rot.toFixed(0)} ${cx.toFixed(0)} ${cy.toFixed(0)})"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
+  <rect width="${SIZE}" height="${SIZE}" fill="${bg}"/>
+  ${strokes}
+</svg>`;
+}
+
+/** 绚烂霓虹：高饱和色相扩展 + 彩色光晕与星形光斑 */
+function vivid(colors: string[], rand: () => number): string {
+  const c = paletteOrDefault(colors);
+  const expanded: string[] = [...c];
+  for (const col of c) {
+    const { h, s, l } = hexToHsl(col);
+    expanded.push(hslToHex(h + 45, Math.min(100, s + 18), Math.max(30, Math.min(70, l))));
+    expanded.push(hslToHex(h + 90, Math.min(100, s + 25), Math.max(28, Math.min(72, l))));
+    expanded.push(hslToHex(h + 160, 90, 55));
+  }
+  const bg = mix(c[c.length - 1]!, "#0a0a14", 0.35);
+  let blobs = "";
+  const n = Math.min(10, expanded.length);
+  for (let i = 0; i < n; i++) {
+    const cx = rand() * SIZE;
+    const cy = rand() * SIZE;
+    const r = 220 + rand() * 420;
+    const color = expanded[Math.floor(rand() * expanded.length)]!;
+    blobs += `<circle cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" r="${r.toFixed(0)}" fill="${color}" opacity="${0.4 + rand() * 0.35}" filter="url(#soft)"/>`;
+  }
+  let sparkles = "";
+  for (let i = 0; i < 50; i++) {
+    const cx = rand() * SIZE;
+    const cy = rand() * SIZE;
+    const s = 4 + rand() * 16;
+    const color = expanded[Math.floor(rand() * expanded.length)]!;
+    sparkles += `<rect x="${(cx - s / 2).toFixed(0)}" y="${(cy - s / 2).toFixed(0)}" width="${s.toFixed(0)}" height="${s.toFixed(0)}" fill="${color}" opacity="${0.5 + rand() * 0.4}" transform="rotate(45 ${cx.toFixed(0)} ${cy.toFixed(0)})"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}" viewBox="0 0 ${SIZE} ${SIZE}">
+  <defs><filter id="soft"><feGaussianBlur stdDeviation="70"/></filter></defs>
+  <rect width="${SIZE}" height="${SIZE}" fill="${bg}"/>
+  ${blobs}${sparkles}
+</svg>`;
+}
+
 /* ---------------- 对外接口 ---------------- */
 
 const GENERATORS: Record<AbstractStyle, (c: string[], r: () => number) => string> = {
-  aurora, mondrian, gradients, flow,
+  aurora, mondrian, gradients, flow, oil, vivid,
 };
 
 export function generateAbstractSvg(colors: string[], style: AbstractStyle = "aurora", seed = Date.now()): string {
@@ -172,10 +274,11 @@ export async function svgToPng(svg: string): Promise<Buffer> {
   return sharp(Buffer.from(svg)).png().toBuffer();
 }
 
-/** 判断 SVG 各风格是否依赖模糊滤镜（用于前端渲染提示） */
 export const ABSTRACT_STYLE_LABELS: Record<AbstractStyle, string> = {
   aurora: "极光幻梦",
   mondrian: "蒙德里安",
   gradients: "柔光渐变",
   flow: "流体涟漪",
+  oil: "油画质感",
+  vivid: "绚烂霓虹",
 };
