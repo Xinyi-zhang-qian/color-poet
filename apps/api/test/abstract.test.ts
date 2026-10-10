@@ -20,7 +20,7 @@ test("相同 seed 结果可复现", () => {
 });
 
 test("SVG 可转换为 PNG", async () => {
-  const svg = generateAbstractSvg(colors, "oil", 42);
+  const svg = generateAbstractSvg(colors, "aurora", 42);
   const png = await svgToPng(svg);
   assert.ok(png.length > 1000, "PNG 应有合理体积");
 });

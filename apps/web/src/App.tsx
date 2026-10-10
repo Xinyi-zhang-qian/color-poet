@@ -4,8 +4,8 @@ import type { AbstractImageResult, AbstractStyle, GenerateResult, Meta, Palette,
 import { composePoster } from "./lib/poster";
 
 const DEFAULT_META: Meta = {
-  styles: ["fluid", "gradient", "graffiti", "oil"],
-  styleLabels: { fluid: "流体", gradient: "渐变", graffiti: "涂鸦", oil: "油画" },
+  styles: ["fluid", "gradient", "watercolor", "aurora"],
+  styleLabels: { fluid: "流体", gradient: "渐变", watercolor: "水彩", aurora: "极光" },
 };
 
 type Phase = "idle" | "generating" | "done";
