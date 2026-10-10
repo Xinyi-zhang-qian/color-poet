@@ -154,11 +154,6 @@ export default function App() {
             <br />
             它来自古今中外的哲学家与诗人，关于生命、关于人生的经典感悟。
           </p>
-          <p className="mt-7 text-white/40 text-sm leading-loose tracking-wide">
-            一切如其所是，处处都是丰盛
-            <br />
-            样样都是完美，爱无处不在！
-          </p>
         </header>
 
         {phase === "idle" && (
@@ -253,6 +248,10 @@ export default function App() {
             {error}
           </div>
         )}
+
+        <footer className="text-center text-white/25 text-xs mt-20 tracking-wider">
+          一切如其所是 · 处处都是丰盛 · 样样都是完美 · 爱无处不在
+        </footer>
       </main>
     </div>
   );
