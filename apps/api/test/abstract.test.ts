@@ -14,8 +14,8 @@ test("所有风格都生成合法 SVG", () => {
 });
 
 test("相同 seed 结果可复现", () => {
-  const a = generateAbstractSvg(colors, "aurora", 123);
-  const b = generateAbstractSvg(colors, "aurora", 123);
+  const a = generateAbstractSvg(colors, "gradient", 123);
+  const b = generateAbstractSvg(colors, "gradient", 123);
   assert.equal(a, b);
 });
 

@@ -15,7 +15,7 @@ export interface Palette {
   average: { l: number; a: number; b: number };
 }
 
-export type AbstractStyle = "aurora" | "mondrian" | "gradients" | "oil";
+export type AbstractStyle = "fluid" | "gradient" | "graffiti" | "oil";
 
 export interface Quote {
   id: number;

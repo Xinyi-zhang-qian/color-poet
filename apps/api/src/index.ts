@@ -119,7 +119,7 @@ app.post("/api/abstract", async (req) => {
   }
   const style = (ABSTRACT_STYLES as string[]).includes(body.style ?? "")
     ? (body.style as (typeof ABSTRACT_STYLES)[number])
-    : "aurora";
+    : "gradient";
   return { svg: generateAbstractSvg(body.colors, style, body.seed ?? Date.now()) };
 });
 

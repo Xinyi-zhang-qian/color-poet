@@ -26,12 +26,10 @@ export const QUOTES: Quote[] = [
   { id: 1, text: "宇宙不可能犯错。", author: "杨定一", source: "神圣的你", lang: "zh", themes: ["acceptance", "philosophy"], moods: ["neutral", "warm"], brightness: ["balanced"] },
   { id: 2, text: "一切，都刚刚好。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["acceptance", "serenity"], moods: ["warm", "neutral"], brightness: ["light", "balanced"] },
   { id: 3, text: "回到当下，一切自然都好。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["presence", "serenity"], moods: ["neutral", "warm"], brightness: ["balanced"] },
-  { id: 4, text: "你，就是宇宙。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["philosophy", "presence"], moods: ["neutral"], brightness: ["balanced"] },
   { id: 5, text: "这里，现在，就是全部。", author: "杨定一", source: "全部的你", lang: "zh", themes: ["presence", "serenity"], moods: ["neutral", "warm"], brightness: ["light"] },
 
   // ---------- 克里希那穆提 ----------
   { id: 6, text: "真理是无路之国。", author: "克里希那穆提", source: "解散明星社演讲", lang: "translated", themes: ["philosophy", "freedom"], moods: ["cool", "neutral"], brightness: ["dark", "balanced"] },
-  { id: 7, text: "你就是世界。", author: "克里希那穆提", source: "你就是世界", lang: "translated", themes: ["philosophy", "presence"], moods: ["neutral"], brightness: ["balanced"] },
   { id: 8, text: "观察者即是被观察者。", author: "克里希那穆提", source: "生命之书", lang: "translated", themes: ["philosophy", "presence"], moods: ["cool", "neutral"], brightness: ["balanced", "dark"] },
   { id: 9, text: "在静默之中，才有真正的聆听。", author: "克里希那穆提", lang: "translated", themes: ["serenity", "presence"], moods: ["cool", "neutral"], brightness: ["dark"] },
   { id: 10, text: "自由，是心灵免于恐惧的状态。", author: "克里希那穆提", lang: "translated", themes: ["freedom", "philosophy"], moods: ["cool"], brightness: ["balanced"] },
@@ -47,7 +45,6 @@ export const QUOTES: Quote[] = [
   { id: 16, text: "当我与现实争辩时，输的总是我。", author: "拜伦·凯蒂", source: "一念之转", lang: "translated", themes: ["acceptance", "philosophy"], moods: ["neutral", "cool"], brightness: ["balanced"] },
   { id: 17, text: "现实，永远比我们讲述的故事更仁慈。", author: "拜伦·凯蒂", source: "一念之转", lang: "translated", themes: ["acceptance", "love"], moods: ["warm", "neutral"], brightness: ["balanced", "light"] },
   { id: 18, text: "没有你的故事，你是谁？", author: "拜伦·凯蒂", source: "一念之转", lang: "translated", themes: ["philosophy", "presence"], moods: ["cool", "neutral"], brightness: ["balanced"] },
-  { id: 19, text: "爱，只在当下。", author: "拜伦·凯蒂", lang: "translated", themes: ["love", "presence"], moods: ["warm"], brightness: ["light"] },
   { id: 20, text: "转念，就是回到平静。", author: "拜伦·凯蒂", lang: "translated", themes: ["acceptance", "serenity"], moods: ["neutral", "warm"], brightness: ["balanced"] },
 
   // ---------- 拉玛那·马哈希 ----------
@@ -80,6 +77,14 @@ export const QUOTES: Quote[] = [
   { id: 43, text: "有两样东西，愈是经常和持久地思考它们，愈是使心灵充满敬畏：头上的星空和心中的道德律。", author: "康德", source: "实践理性批判", lang: "translated", themes: ["philosophy", "serenity"], moods: ["cool", "neutral"], brightness: ["dark"] },
   { id: 44, text: "人不能两次踏进同一条河流。", author: "赫拉克利特", lang: "translated", themes: ["time", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
   { id: 45, text: "你拥有力量掌控你的内心，而非外部事物。", author: "马可·奥勒留", source: "沉思录", lang: "translated", themes: ["acceptance", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 46, text: "当你可以和不确定性共处时，无限的可能性就在生命中展开了。", author: "埃克哈特·托利", source: "当下的力量", lang: "translated", themes: ["acceptance", "hope"], moods: ["neutral", "warm"], brightness: ["balanced"] },
+  { id: 47, text: "那些杀不死我的，必使我更强大。", author: "尼采", source: "偶像的黄昏", lang: "translated", themes: ["resilience", "vitality"], moods: ["warm"], brightness: ["balanced"] },
+  { id: 48, text: "参差多态，乃是幸福的本源。", author: "罗素", source: "幸福之路", lang: "translated", themes: ["hope", "love"], moods: ["warm"], brightness: ["light"] },
+  { id: 49, text: "祸兮福之所倚，福兮祸之所伏。", author: "老子", source: "道德经", lang: "zh", themes: ["philosophy", "acceptance"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 50, text: "世界的意义必定在世界之外。", author: "维特根斯坦", source: "逻辑哲学论", lang: "translated", themes: ["philosophy"], moods: ["cool", "neutral"], brightness: ["balanced"] },
+  { id: 51, text: "登上顶峰的斗争本身，足以充实人的心灵。", author: "加缪", source: "西西弗神话", lang: "translated", themes: ["resilience", "philosophy"], moods: ["neutral"], brightness: ["balanced"] },
+  { id: 52, text: "只有当心灵安静下来，才能看见真理。", author: "克里希那穆提", source: "生命之书", lang: "translated", themes: ["serenity", "philosophy"], moods: ["cool", "neutral"], brightness: ["dark"] },
+  { id: 53, text: "正念是一种力量，它带我们回到当下，安住于生命的每一刻。", author: "一行禅师", lang: "translated", themes: ["presence", "serenity"], moods: ["neutral", "warm"], brightness: ["light"] },
 ];
 
 function mulberry32(seed: number): () => number {

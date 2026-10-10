@@ -273,11 +273,11 @@ body {
   gap: 0.4rem;
 }
 .card-swatch-dot {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.52rem;
+  height: 0.52rem;
   border-radius: 9999px;
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 .card-en {
   text-align: right;

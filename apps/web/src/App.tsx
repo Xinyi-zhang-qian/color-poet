@@ -12,11 +12,11 @@ const DEFAULT_META: Meta = {
     cool: ["雪狐", "企鹅", "鲸鱼", "猫头鹰", "海豹", "白兔"],
     neutral: ["仓鼠", "水獭", "海豹", "熊猫", "刺猬", "树懒"],
   },
-  styles: ["aurora", "mondrian", "gradients", "oil"],
+  styles: ["fluid", "gradient", "graffiti", "oil"],
   styleLabels: {
-    aurora: "极光",
-    mondrian: "蒙德里安",
-    gradients: "柔光",
+    fluid: "流体",
+    gradient: "渐变",
+    graffiti: "涂鸦",
     oil: "油画",
   },
 };
@@ -50,7 +50,7 @@ export default function App() {
   const [abstractSvg, setAbstractSvg] = useState("");
   const [animal, setAnimal] = useState<AnimalResult | null>(null);
   const [quote, setQuote] = useState<Quote | null>(null);
-  const [style, setStyle] = useState<AbstractStyle>("aurora");
+  const [style, setStyle] = useState<AbstractStyle>("gradient");
   const [animalChoice, setAnimalChoice] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState<BusyKey>("");

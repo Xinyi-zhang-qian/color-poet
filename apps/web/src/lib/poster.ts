@@ -142,13 +142,13 @@ export async function composePoster(input: PosterInput): Promise<Blob> {
   const dotY = H - 108;
   chips.forEach((c) => {
     ctx.beginPath();
-    ctx.arc(x + 20, dotY, 20, 0, Math.PI * 2);
+    ctx.arc(x + 12, dotY, 12, 0, Math.PI * 2);
     ctx.fillStyle = c.hex;
     ctx.fill();
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = "rgba(255,255,255,0.8)";
     ctx.stroke();
-    x += 54;
+    x += 32;
   });
 
   ctx.textAlign = "right";

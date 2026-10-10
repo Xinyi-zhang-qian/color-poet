@@ -13,3 +13,4 @@ coverage/
 apps/api/uploads/
 apps/api/generated/
 *.tsbuildinfo
+风格参考/

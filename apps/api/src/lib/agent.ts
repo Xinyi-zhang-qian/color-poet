@@ -6,6 +6,7 @@ import { pickQuote } from "../data/quotes.js";
 import type { Quote } from "../data/quotes.js";
 import { generateImage } from "./wanx.js";
 import { config, hasDashscopeKey } from "../config.js";
+import sharp from "sharp";
 
 /* ---------- 可爱动物候选池（按情绪分组） ---------- */
 
@@ -114,10 +115,42 @@ async function decide(palette: Palette, requested?: string, seed = Date.now()): 
 
 function buildAnimalPrompt(animal: string, palette: Palette, description: string): string {
   const hexes = palette.colors.slice(0, 5).map((c) => c.hex).join("、");
-  return `一只超可爱的动漫风格${animal}，Q版圆润造型，圆溜溜的大眼睛，毛茸茸的质感，${description}，画面配色使用这些颜色：${hexes}，背景为简洁的纯色或极简几何色块，柔和光影，治愈系高质量插画，干净清爽`;
+  return `一只超可爱的动漫风格${animal}，Q版圆润造型，圆溜溜的大眼睛，毛茸茸的质感，${description}，全身像居中，主体配色使用这些颜色：${hexes}，背景为纯白色，无阴影，无文字，柔和光影，治愈系高质量插画`;
 }
 
 const NEGATIVE_PROMPT = "写实照片，恐怖，血腥，畸形，多余肢体，模糊，低质量，文字，水印，签名，杂乱背景，暗沉，压抑";
+
+/** 去除图片背景（色度键控）：采样边缘背景色，把接近背景色的像素透明化（软边缘） */
+async function removeBackground(buffer: Buffer): Promise<Buffer> {
+  try {
+    const { data, info } = await sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const w = info.width;
+    const h = info.height;
+    const ch = info.channels;
+    const samples: number[] = [];
+    const push = (x: number, y: number) => {
+      const i = (y * w + x) * ch;
+      samples.push(data[i]!, data[i + 1]!, data[i + 2]!);
+    };
+    for (let x = 0; x < w; x += 8) { push(x, 0); push(x, h - 1); }
+    for (let y = 0; y < h; y += 8) { push(0, y); push(w - 1, y); }
+    let sr = 0, sg = 0, sb = 0;
+    for (let i = 0; i < samples.length; i += 3) { sr += samples[i]!; sg += samples[i + 1]!; sb += samples[i + 2]!; }
+    const n = samples.length / 3;
+    const br = sr / n, bg = sg / n, bb = sb / n;
+    const soft = 48;
+    const hard = 96;
+    for (let i = 0; i < data.length; i += ch) {
+      const r = data[i]!, g = data[i + 1]!, b = data[i + 2]!;
+      const dist = Math.abs(r - br) + Math.abs(g - bg) + Math.abs(b - bb);
+      if (dist < soft) data[i + 3] = 0;
+      else if (dist < hard) data[i + 3] = Math.round((255 * (dist - soft)) / (hard - soft));
+    }
+    return await sharp(data, { raw: { width: w, height: h, channels: 4 } }).png().toBuffer();
+  } catch {
+    return buffer;
+  }
+}
 
 async function generateAnimalImage(
   animal: string,
@@ -137,9 +170,10 @@ async function generateAnimalImage(
       seed,
       negativePrompt: NEGATIVE_PROMPT,
     });
+    const cutout = await removeBackground(buffer);
     return {
       name: animal,
-      imageDataUri: `data:image/png;base64,${buffer.toString("base64")}`,
+      imageDataUri: `data:image/png;base64,${cutout.toString("base64")}`,
       fallback: false,
     };
   } catch (e) {
@@ -278,7 +312,7 @@ async function generateCardFromPalette(
     ? { animal: req.animal ?? analysis.animal ?? ANIMALS[palette.mood]?.[0] ?? "小猫", description: analysis.description, byLLM: true }
     : await decide(palette, req.animal, seed);
 
-  const abstractSvg = generateAbstractSvg(palette.colors.map((c) => c.hex), req.style ?? "aurora", seed);
+  const abstractSvg = generateAbstractSvg(palette.colors.map((c) => c.hex), req.style ?? "gradient", seed);
   const [animal, quote] = await Promise.all([
     generateAnimalImage(decision.animal, palette, decision.description, seed),
     Promise.resolve(pickQuote({ mood: palette.mood, brightness: palette.brightness }, new Set(), seed)),
