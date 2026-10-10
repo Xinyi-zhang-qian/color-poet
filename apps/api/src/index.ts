@@ -2,7 +2,10 @@ import Fastify from "fastify";
 import type { FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
 import sharp from "sharp";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { config, hasDashscopeKey } from "./config.js";
 import { generateColorCard, generateTextCard, generateRandomCard, generateAbstractFromColors } from "./lib/agent.js";
 import type { GenerateRequest } from "./lib/agent.js";
@@ -142,6 +145,20 @@ app.setErrorHandler((err, _req, reply) => {
   reply.code(status).send({ error: message });
 });
 
+/* ---------- 生产环境：serve 前端构建产物 ---------- */
+
+const webDist = fileURLToPath(new URL("../../web/dist/", import.meta.url));
+if (existsSync(webDist)) {
+  await app.register(fastifyStatic, { root: webDist });
+  app.setNotFoundHandler((req, reply) => {
+    if (req.raw.url?.startsWith("/api")) {
+      reply.code(404).send({ error: "Not found" });
+    } else {
+      reply.sendFile("index.html");
+    }
+  });
+}
+
 const port = config.port;
 await app.listen({ port, host: "0.0.0.0" });
-console.log(`✨ 生命之流彩 API 已启动: http://localhost:${port}`);
+console.log(`✨ 生命之流彩已启动: http://localhost:${port}`);

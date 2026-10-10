@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: color-poet
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: DASHSCOPE_API_KEY
+        sync: false
+      - key: WANX_MODEL
+        value: wanx2.1-t2i-turbo
+      - key: QWEN_MODEL
+        value: qwen-plus
+      - key: PORT
+        value: "8787"

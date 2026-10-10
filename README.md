@@ -78,6 +78,35 @@ pnpm dev
 
 ---
 
+## 🚢 部署上线
+
+项目已打包为**单服务**（后端同时托管前端静态文件），可通过 Docker 或 Render 一键部署。
+
+### 方式一：Render（推荐，免费）
+
+1. 把仓库推到 GitHub（已完成）
+2. 打开 [render.com](https://render.com)，New → Blueprint，选择本仓库
+3. 仓库已含 `render.yaml`，会自动创建服务；在环境变量里填入 `DASHSCOPE_API_KEY` 即可
+
+### 方式二：Docker
+
+```bash
+docker build -t color-poet .
+docker run -p 8787:8787 --env-file .env color-poet
+```
+
+然后访问 http://localhost:8787
+
+### 方式三：任意 Node 服务器
+
+```bash
+pnpm install
+pnpm build
+node apps/api/dist/index.js
+```
+
+---
+
 ## 📡 API 一览
 
 | 方法 | 路径 | 说明 |

@@ -147,7 +147,14 @@ export default function App() {
         <header className="text-center mb-12 fade-up">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-white">生命之流彩</h1>
           <p className="mt-2 text-sm text-white/50 tracking-[0.3em]">FLOW OF LIFE · 用卡片点亮一束光</p>
-          <p className="mt-6 text-white/45 text-sm leading-relaxed">
+          <p className="mt-7 text-white/65 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
+            无论此刻你在经历什么，都可以抽一张卡，
+            <br />
+            看看上天想送给你的那句话——
+            <br />
+            它来自古今中外的哲学家与诗人，关于生命、关于人生的经典感悟。
+          </p>
+          <p className="mt-7 text-white/40 text-sm leading-loose tracking-wide">
             一切如其所是，处处都是丰盛
             <br />
             样样都是完美，爱无处不在！
