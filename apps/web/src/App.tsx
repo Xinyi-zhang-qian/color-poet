@@ -18,6 +18,13 @@ const DEFAULT_META: Meta = {
   styleLabels: { aurora: "极光幻梦", mondrian: "蒙德里安", gradients: "柔光渐变", flow: "流体涟漪" },
 };
 
+const EXAMPLES = [
+  { file: "sunset.jpg", label: "🌅 夕阳" },
+  { file: "ocean.jpg", label: "🌊 海洋" },
+  { file: "forest.jpg", label: "🌲 森林" },
+  { file: "aurora.jpg", label: "🌌 极光" },
+];
+
 type Phase = "idle" | "ready" | "generating" | "done";
 type BusyKey = "" | "animal" | "quote" | "abstract";
 
@@ -61,6 +68,17 @@ export default function App() {
     setQuote(null);
     setAbstractSvg("");
     fetchPalette(f).then(setPalette).catch(() => {});
+  }
+
+  async function onLoadExample(file: string) {
+    setError("");
+    try {
+      const res = await fetch("/examples/" + file);
+      const blob = await res.blob();
+      await onFile(new File([blob], file, { type: "image/jpeg" }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
   }
 
   function applyResult(res: GenerateResult) {
@@ -172,7 +190,26 @@ export default function App() {
         {/* 上传 / 配置 */}
         {phase !== "done" && (
           <section className="max-w-2xl mx-auto fade-up">
-            {phase === "idle" && <UploadZone onFile={onFile} />}
+            {phase === "idle" && (
+              <>
+                <UploadZone onFile={onFile} />
+                <div className="mt-7 text-center">
+                  <p className="text-xs text-white/40 mb-3 tracking-widest">— 或者先试试这些示例 —</p>
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    {EXAMPLES.map((e) => (
+                      <button
+                        key={e.file}
+                        onClick={() => onLoadExample(e.file)}
+                        className="group overflow-hidden rounded-xl border border-white/12 hover:border-white/30 transition-all hover:-translate-y-1 bg-white/4"
+                      >
+                        <img src={"/examples/" + e.file} alt={e.label} className="w-28 h-20 object-cover" />
+                        <span className="block text-xs text-white/70 py-1.5 group-hover:text-white">{e.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             {(phase === "ready" || phase === "generating") && (
               <div className="glass p-6">
