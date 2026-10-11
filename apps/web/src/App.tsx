@@ -26,7 +26,7 @@ export default function App() {
     return Array.from({ length: 24 }, (_, i) => ({
       left: (i * 37 + 13) % 100,
       top: (i * 53 + 7) % 100,
-      size: 2 + (i % 4),
+      size: 5 + (i % 4) * 2,
       delay: ((i * 0.73) % 5).toFixed(2),
     }));
   }, []);
@@ -146,13 +146,9 @@ export default function App() {
       <main className="relative max-w-4xl mx-auto px-5 py-12">
         <header className="text-center mb-12 fade-up">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-white">生命之流彩</h1>
-          <p className="mt-2 text-sm text-white/50 tracking-[0.3em]">FLOW OF LIFE · 用卡片点亮一束光</p>
-          <p className="mt-7 text-white/65 text-sm md:text-base leading-relaxed max-w-xl mx-auto">
-            无论此刻你在经历什么，都可以抽一张卡，
-            <br />
-            看看上天想送给你的那句话——
-            <br />
-            它来自古今中外的哲学家与诗人，关于生命、关于人生的经典感悟。
+          <p className="mt-3 text-white/60 text-sm md:text-base tracking-[0.45em]">流彩盲盒 · Flow of Life</p>
+          <p className="mt-7 text-white/60 text-sm md:text-base max-w-md mx-auto leading-relaxed">
+            抽一张卡，给生命一点惊喜，为此刻点亮一束光。
           </p>
         </header>
 

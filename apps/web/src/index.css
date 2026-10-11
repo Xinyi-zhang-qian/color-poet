@@ -48,14 +48,14 @@ body {
 }
 .light {
   position: absolute;
-  border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.9), 0 0 16px 5px rgba(255, 255, 255, 0.5);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.95));
   animation: twinkle 4s ease-in-out infinite;
 }
 @keyframes twinkle {
-  0%, 100% { opacity: 0.1; transform: scale(0.55); }
-  50% { opacity: 1; transform: scale(1.7); box-shadow: 0 0 10px 3px rgba(255, 255, 255, 1), 0 0 28px 8px rgba(255, 255, 255, 0.6); }
+  0%, 100% { opacity: 0.1; transform: scale(0.5) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.6) rotate(45deg); filter: drop-shadow(0 0 10px rgba(255, 255, 255, 1)); }
 }
 
 /* ---------- 字体 ---------- */
